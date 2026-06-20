@@ -492,7 +492,7 @@
     <div class="hero-inner">
       <div>
         <h1>先告诉你什么最值得学，再让你追溯来源</h1>
-        <p>新版不按文件和编号展示，而按你的使用方式组织：知识优先级、对你的好处、小知识点、继续研究课题，以及这些知识之间的关系。</p>
+        <p>新版不按文件和编号展示，而按你的使用方式组织：知识优先级、对你的好处、小知识点、继续研究课题，以及这些知识之间的关系。本页已纳入你收藏页前 20 条里的 AI 相关内容。</p>
         <div class="hero-actions">
           <a class="button primary" href="#priority">先看优先级</a>
           <a class="button" href="#mindmap">看思维导图</a>
@@ -500,9 +500,9 @@
         </div>
       </div>
       <div class="scoreboard" aria-label="当前整理统计">
-        <div class="score"><strong>5</strong><span>从收藏中筛出的 AI 编程来源</span></div>
-        <div class="score"><strong>4</strong><span>优先学习知识</span></div>
-        <div class="score"><strong>8</strong><span>容易漏掉的小知识点</span></div>
+        <div class="score"><strong>20</strong><span>已读取的收藏前排内容</span></div>
+        <div class="score"><strong>19</strong><span>明确 AI / Codex / Skill 相关</span></div>
+        <div class="score"><strong>14</strong><span>容易漏掉的小知识点</span></div>
         <div class="score"><strong>6</strong><span>值得继续研究的课题</span></div>
       </div>
     </div>
@@ -596,8 +596,8 @@
 
     <section id="sources" data-zone="sources">
       <div class="section-head">
-        <h2>本轮来源速览</h2>
-        <p>只公开标题、作者、链接和提炼主题，不保存完整视频内容。</p>
+        <h2>前20收藏 AI 速览</h2>
+        <p>只公开标题、作者、可见描述提炼和定位方式，不保存完整视频内容；未拿到精确链接的条目标注为收藏页位置。</p>
       </div>
       <div class="source-panel">
         <div class="source-grid" id="sourceGrid"></div>
@@ -648,6 +648,24 @@
         source: 'Vibe Coding 主线流程视频',
         status: '已确认',
         tags: ['产品', '主链路', '验收']
+      },
+      {
+        rank: 5,
+        title: '把设计规范做成 Skill，才能让 AI 真懂你的审美',
+        summary: '前20条里多次出现“设计 Skill”“IP配图 Skill”“矢量动画 Skill”，说明可复用视觉能力不只是提示词，而是规范、素材、步骤和验收的组合。',
+        benefit: '对你的好处：你的汽车图像、网页视觉、Logo动效和品牌资产可以逐步沉淀成 Codex/Claude Code 都能复用的审美系统。',
+        source: '设计 Skill / IP配图 / Pixel2Motion 视频',
+        status: '部分可信',
+        tags: ['设计', 'Skill', '审美复用']
+      },
+      {
+        rank: 6,
+        title: 'AI 产品要面对收款、商标、主体和发布这些现实约束',
+        summary: '“AI 做小程序收款”这类内容提醒我们：生成产品只是前半段，真正上线还会遇到支付、命名、商标、主体和平台规则。',
+        benefit: '对你的好处：以后让 AI 做小产品时，可以提前把商业化和合规卡点列入验收，避免做出不能收款或不能发布的半成品。',
+        source: 'AI做小程序收款避坑视频',
+        status: '待验证',
+        tags: ['商业化', '小程序', '避坑']
       }
     ];
 
@@ -715,6 +733,54 @@
         status: 'partial',
         label: '部分可信',
         source: 'SRC-008-002 / SRC-008-005'
+      },
+      {
+        title: '信息源库本身也是知识库资产',
+        detail: '“5个AI科技行业宝藏博主”不是单一技巧，而是在提醒我们要沉淀高质量信息源。',
+        value: '你以后不需要随机刷到好内容，而是让 Codex 定期从优质来源里采集和验证。',
+        status: 'partial',
+        label: '部分可信',
+        source: 'TOP20-006'
+      },
+      {
+        title: 'Codex 可以先接管设计里的重复动作',
+        detail: '抠图、改尺寸、批量修改、整理素材这类重复任务，比“替代审美判断”更适合优先交给 AI。',
+        value: '这能把你的精力留给创意、方向和审美，而不是机械操作。',
+        status: 'partial',
+        label: '部分可信',
+        source: 'TOP20-005'
+      },
+      {
+        title: '网页质感来自流程，不只是模型',
+        detail: '电影感网页和告别 AI 味前端都指向同一件事：参考结构、素材、分区修质感、视觉验收比单次生成更重要。',
+        value: '这会直接提升你未来让 Codex 做网站、知识库和展示页的效果。',
+        status: 'confirmed',
+        label: '已确认',
+        source: 'TOP20-015 / TOP20-016'
+      },
+      {
+        title: '长期记忆要做成用户可控的共享层',
+        detail: 'Agent 记忆、共享大脑、Obsidian vault 都在指向同一问题：模型换了，用户经验不能归零。',
+        value: '这正好服务你的“Codex 和 Claude Code 一起成长”的目标。',
+        status: 'partial',
+        label: '部分可信',
+        source: 'TOP20-012'
+      },
+      {
+        title: '小产品上线的难点常常不在生成代码',
+        detail: 'AI 做小程序能收钱，还涉及主体、支付、商标、命名、平台审核和真实用户路径。',
+        value: '以后做商业化小产品时，可以让知识库提前列出非技术风险。',
+        status: 'pending',
+        label: '待验证',
+        source: 'TOP20-002'
+      },
+      {
+        title: '实时 AI 影像要把效果和硬件条件分开看',
+        detail: 'CKLive、FLUX、RTX5090、streamdiffusion 这类内容很容易被效果吸引，但落地受硬件、延迟、稳定性影响。',
+        value: '可以作为创意方向保留，但短期不要抢走知识库和组织系统的优先级。',
+        status: 'pending',
+        label: '待验证',
+        source: 'TOP20-018'
       }
     ];
 
@@ -752,11 +818,26 @@
     ];
 
     const sources = [
-      ['Codex + Obsidian 搭建自动迭代生长知识库', '知雪', '知识库、自动整理、复盘', 'https://www.douyin.com/video/7651623453228816633'],
-      ['AIWorker 进入真正工程生产', 'Frank的Agent实验室', 'AI worker、工程生产、验证恢复', 'https://www.douyin.com/video/7647490380754593407'],
-      ['Codex 多 Agent 自主协同', '珍妮丁丁说AI', 'Codex、多 Agent、协作机制', 'https://www.douyin.com/video/7649987398285249798'],
-      ['Vibe Coding：小白做产品先跑通主线流程', '珍妮丁丁说AI', '主链路、API、Spec、验收', 'https://www.douyin.com/video/7649038685517712694'],
-      ['AI 指导 Multi-agent 做研究', '晓辉博士', 'AI PM、多 Agent 研究、Claude Code', 'https://www.douyin.com/video/7619361092325820602']
+      ['Codex + Obsidian 搭建自动迭代生长知识库', '知雪', '知识库、自动整理、复盘', 'https://www.douyin.com/video/7651623453228816633', '收藏页第1条'],
+      ['全职妈妈靠 AI 做小程序收款，坑全在这条', '佳蔓Jemma', 'AI做小程序、收款、商标、商业化避坑', '', '收藏页第2条'],
+      ['设计师用 Codex 能做什么', '白无常C4D', '设计师、Codex、设计工作流', '', '收藏页第3条'],
+      ['用“边缘色调”还原梦核质感', '麦冬MoonVibe', 'AI教程、梦核风格、视觉风格', '', '收藏页第4条'],
+      ['AI 接管 PS，释放设计师双手', '设计毒物', 'Codex、PS、重复设计工作、AI设计', '', '收藏页第5条'],
+      ['5 个 AI 科技行业宝藏博主', '弗洛哈哈flhh', 'AI趋势、优质信息源、Skill', '', '收藏页第6条'],
+      ['可视化生成器：图像映射到圆形布局', '动不动就饿', '创意工具、可视化、宝藏网站，AI相关性待判断', '', '收藏页第7条'],
+      ['用小黑 Skill 定制自己的 IP 配图', 'Esther不二', 'Skill、IP配图、AI对话日常', '', '收藏页第8条'],
+      ['AIWorker 进入真正工程生产', 'Frank的Agent实验室', 'AI worker、工程生产、验证恢复', 'https://www.douyin.com/video/7647490380754593407', '收藏页第9条'],
+      ['用 Codex 做高级感官网', '元见UGEN', 'Codex、AI商业视觉素材、动效、部署、Skill', '', '收藏页第10条'],
+      ['把设计做成 Skill，AI 的审美直接升级', '西瓜同学', '设计规范、Skill、UI设计、ClaudeCode', '', '收藏页第11条'],
+      ['让 Agent 拥有长期记忆机制', '大模型阿龙', 'Agent、长期记忆、训练机制', '', '收藏页第12条'],
+      ['VibeCoding 高级思维实战：5秒复刻网红特效', 'ai超级个人', 'VibeCoding、Claude、Gemini、特效复刻', '', '收藏页第13条'],
+      ['AI 原生组织实战', '天行社', 'AI原生组织、组织系统', '', '收藏页第14条'],
+      ['AI 建站流：电影感网页，普通人也能照着做', '设计师言炎', 'AI建站、Gemini、Claude Code、素材分区修质感', '', '收藏页第15条'],
+      ['学会这一招，告别 AI 味前端', '哆噶兽', 'AI前端、网页质感、视觉验收', '', '收藏页第16条'],
+      ['Codex + Harness + VibeCoding', '也覌', 'Codex、Harness、VibeCoding，工具链待验证', '', '收藏页第17条'],
+      ['CKLive 实时风格转绘 / FLUX / RTX5090', 'SHOWLAB', '实时AI、AI实时影像、FLUX、硬件条件', '', '收藏页第18条'],
+      ['保姆级 Codex 教程', '刺猬星球super-i', 'Codex教程、电脑操作、AI创作', '', '收藏页第19条'],
+      ['截图转矢量动画 Skill / Pixel2Motion', 'Nolansay', 'Logo动效、矢量动画、Skill、Pixel2Motion', '', '收藏页第20条']
     ];
 
     let currentStatus = 'all';
@@ -833,11 +914,11 @@
       document.getElementById('sourceGrid').innerHTML = sources
         .filter(row => !currentQuery || normalize(row.join(' ')).includes(normalize(currentQuery)))
         .map(row => `
-          <article class="source-card">
+        <article class="source-card">
             <strong>${row[0]}</strong>
             <span>${row[1]}</span>
             <span>${row[2]}</span>
-            <a href="${row[3]}">打开抖音来源</a>
+            ${row[3] ? `<a href="${row[3]}">打开抖音来源</a>` : `<span>${row[4]}</span>`}
           </article>
         `).join('');
     }
