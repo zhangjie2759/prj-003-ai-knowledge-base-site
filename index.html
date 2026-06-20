@@ -279,6 +279,34 @@
       background: var(--accent-soft); color: #8a4a16; font-size: 13px;
     }
 
+    /* ---------- expanded research ---------- */
+    .research-grid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(260px, .72fr); gap: 16px; }
+    .research-card {
+      padding: 20px; border-radius: var(--radius);
+      background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow);
+    }
+    .research-card h3 { margin: 0 0 8px; font-size: 20px; }
+    .research-card p { margin: 0 0 12px; color: var(--muted); }
+    .research-card .formula {
+      padding: 12px 14px; border-radius: 11px;
+      background: #07332c; color: #d9f4ee; font-size: 13.5px; font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+    .checklist { display: grid; gap: 10px; margin-top: 14px; }
+    .check-item { display: grid; grid-template-columns: 28px minmax(0,1fr); gap: 10px; align-items: start; }
+    .check-item b {
+      display: grid; place-items: center; width: 28px; height: 28px;
+      border-radius: 50%; background: var(--primary-soft); color: var(--primary-ink); font-size: 12px;
+    }
+    .check-item span { font-size: 13.5px; color: #26343b; }
+    .evidence-list { display: grid; gap: 10px; }
+    .evidence {
+      padding: 11px 12px; border-radius: 11px; background: #f5f8f7; border: 1px solid var(--line);
+      font-size: 13px;
+    }
+    .evidence a { font-weight: 800; text-decoration: none; }
+    .evidence small { display: block; margin-top: 4px; color: var(--muted); }
+
     /* ---------- commands ---------- */
     .cmd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px,1fr)); gap: 14px; }
     .cmd {
@@ -385,6 +413,7 @@
       .cmd-grid { grid-template-columns: 1fr; }
       .method-grid { grid-template-columns: 1fr; }
       .signal-grid { grid-template-columns: 1fr; }
+      .research-grid { grid-template-columns: 1fr; }
       .src-row { grid-template-columns: 24px minmax(0,1fr); }
       .src-row .right { grid-column: 2; justify-content: flex-start; }
     }
@@ -448,6 +477,7 @@
       <a href="#signals">兴趣信号</a>
       <a href="#topics">课题队列</a>
       <a href="#methods">可用方法</a>
+      <a href="#expanded">扩展研究</a>
       <a href="#commands">下一步命令</a>
       <a href="#map">关系图</a>
       <a href="#sources">来源追踪</a>
@@ -494,6 +524,41 @@
         <span><i class="dot-mark" style="background:var(--pend)"></i>小心误导 · 说法夸张或缺证据</span>
       </div>
       <div class="method-grid" id="methodGrid"></div>
+    </section>
+
+    <section id="expanded">
+      <div class="sec-head">
+        <h2>已扩展研究 · 不止提取内容</h2>
+        <p>这里放已经沿着收藏信号查资料补全过的课题。视频只是触发点，下面才是可执行知识。</p>
+      </div>
+      <div class="research-grid">
+        <article class="research-card">
+          <div class="badges">
+            <span class="pill p0">P0</span>
+            <span class="pill confirmed">已补全研究</span>
+          </div>
+          <h3>设计规范与“AI 味前端”</h3>
+          <p>结论：AI 味不是模型单点问题，而是设计判断缺失：层级不清、节奏平均、组件无约束、移动端未验收、装饰压过功能。</p>
+          <div class="formula">目标用户与任务 -> 信息层级 -> 布局节奏 -> 组件约束 -> 可读性与可访问性 -> 响应式检查 -> 视觉细节</div>
+          <div class="checklist">
+            <div class="check-item"><b>1</b><span>首屏只能有一个最重要问题或动作，先回答“用户该先看什么”。</span></div>
+            <div class="check-item"><b>2</b><span>用颜色/对比、尺度、分组建立层级；如果所有元素都抢眼，就没有重点。</span></div>
+            <div class="check-item"><b>3</b><span>普通文本与背景对比度按 WCAG AA 4.5:1 作为底线，大文本至少 3:1。</span></div>
+            <div class="check-item"><b>4</b><span>真实检查 390px 手机宽度，避免固定 min-width 和 nowrap 撑破页面。</span></div>
+            <div class="check-item"><b>5</b><span>装饰、动效、阴影和渐变必须服务内容，不用“高级感”掩盖可用性问题。</span></div>
+          </div>
+        </article>
+        <aside class="research-card">
+          <h3>验证依据</h3>
+          <div class="evidence-list">
+            <div class="evidence"><a href="https://www.nngroup.com/articles/visual-hierarchy-ux-definition/" target="_blank" rel="noopener">NN/g 视觉层级</a><small>用颜色/对比、尺度、分组引导注意力。</small></div>
+            <div class="evidence"><a href="https://www.nngroup.com/articles/aesthetic-usability-effect/" target="_blank" rel="noopener">NN/g 审美-可用性效应</a><small>美观能增加容忍度，但不能弥补严重可用性问题。</small></div>
+            <div class="evidence"><a href="https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html" target="_blank" rel="noopener">W3C WCAG 对比度</a><small>普通文本 4.5:1，大文本 3:1。</small></div>
+            <div class="evidence"><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_media_queries/Using_media_queries" target="_blank" rel="noopener">MDN 媒体查询</a><small>按视口、输入能力和用户偏好应用不同 CSS。</small></div>
+            <div class="evidence"><a href="https://web.dev/learn/design/" target="_blank" rel="noopener">web.dev 响应式设计</a><small>覆盖布局、排版、可访问性、交互和 UI pattern。</small></div>
+          </div>
+        </aside>
+      </div>
     </section>
 
     <section id="commands">
@@ -584,11 +649,11 @@
   <script>
     /* ---------------- data ---------------- */
     const topics = [
-      { id:'T1', title:'设计规范与“AI 味前端”', priority:'P0', status:'partial',
+      { id:'T1', title:'设计规范与“AI 味前端”', priority:'P0', status:'confirmed',
         question:'优秀网页和视觉到底有哪些可执行规范？怎样系统性地去掉“AI 味”？',
-        why:'直接决定这个知识库、未来产品页和视觉资产的质量，是你当前最直接的痛点。',
+        why:'已沿着收藏信号查资料补全：关键不是加装饰，而是建立信息层级、布局节奏、组件约束、可读性、响应式和视觉克制的验收规范。',
         benefit:'让 Codex / Claude Code 做出来的页面一眼不像模板，更接近你的审美。',
-        sources:[3,5,16], next:'把“参考结构 / 素材 / 层级 / 动效 / 细节 / 移动端”做成一张视觉验收清单。' },
+        sources:[3,5,16], next:'按 TASK-018 研究卡，把网页质感检查清单沉淀成项目级 Skill 候选。' },
       { id:'T2', title:'AI 共享大脑与长期记忆', priority:'P0', status:'pending',
         question:'怎样建立跨模型、跨工具、可迁移可审计的个人与团队记忆层？',
         why:'决定用户、Codex、Claude Code 能否复利知识，不再每次从零解释。',
@@ -652,6 +717,11 @@
         when:'觉得 AI 做的网页或图“一眼假”时。',
         steps:['检查参考是否充足','检查视觉层级是否偏平','检查素材是否真实、细节是否到位','建立视觉验收清单逐项打分'],
         benefit:'把模糊的“丑”变成可逐项修复的清单。' }
+      ,
+      { id:'M6', highlight:'adopt', conclusion:'网页质感先验收层级、节奏、可读性和响应式', status:'confirmed',
+        when:'Codex 或 Claude Code 交付网页、知识库、落地页或工具界面时。',
+        steps:['首屏只保留一个最重要问题或动作','用颜色/对比、尺度、分组建立视觉层级','普通文本按 4.5:1 对比度做底线','用 390px 手机宽度检查溢出、裁切和按钮拥挤','删除不服务内容的装饰和平均用力的卡片'],
+        benefit:'把“丑”和“AI 味”拆成可操作的验收项，后续能稳定改进。' }
     ];
 
     const commands = [
@@ -662,7 +732,7 @@
         prompt:'从我抖音收藏前 20 条里判断我最该优先研究的 5 个 AI 工作流方向，按对我当前项目的价值排序，并更新知识库网页。',
         guard:'按实际收益排序，不按视频热度；区分已确认与待验证。' },
       { id:'C3', label:'做网页质感检查表', target:'Claude Code',
-        prompt:'把“电影感网页”“告别 AI 味前端”整理成一张可复用的网页视觉验收清单，并做成 index.html 里的一个静态区块。',
+        prompt:'根据 TASK-018 的“设计规范与 AI 味前端”研究卡，把网页质感检查清单做成项目级 Skill 候选：包含触发条件、输入、输出、验收清单、常见失败模式和移动端检查步骤。',
         guard:'只改 index.html；保持静态、无框架；移动端可读。' },
       { id:'C4', label:'搭共享记忆原型', target:'Codex',
         prompt:'找 3 条 Obsidian + Agent 长期记忆案例，验证 vault 结构、插件和 Git 同步，产出一个最小可用的共享大脑方案。',
