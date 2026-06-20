@@ -3,952 +3,892 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PRJ-003 AI 知识库</title>
+  <title>PRJ-003 · 个人 AI 学习雷达</title>
   <style>
     :root {
       color-scheme: light;
-      --bg: #f6f7f3;
-      --ink: #182026;
-      --muted: #647078;
-      --line: #d9dfd8;
+      --bg: #eceff3;
       --surface: #ffffff;
-      --soft: #eef4f1;
-      --teal: #0f6b68;
-      --blue: #2453a6;
-      --gold: #9a6417;
-      --red: #a23a26;
-      --green: #157347;
-      --shadow: 0 18px 42px rgba(28, 39, 35, 0.09);
+      --ink: #121a1f;
+      --muted: #5d6b75;
+      --faint: #8a96a0;
+      --line: #e4e9ee;
+      --primary: #0e7c6b;
+      --primary-ink: #0a5a4e;
+      --primary-soft: #e2f3ef;
+      --accent: #e0762b;
+      --accent-soft: #fcecdb;
+      --p0: #d6443a; --p0-soft: #fbe5e2;
+      --p1: #0e7c6b; --p1-soft: #e2f3ef;
+      --p2: #5a7186; --p2-soft: #e9eef3;
+      --ok: #1d8a5b;  --ok-soft: #e3f4ec;
+      --warn: #b5760a; --warn-soft: #faedcc;
+      --pend: #b0493a; --pend-soft: #fbe5e0;
+      --unk: #67727b;  --unk-soft: #ebeef1;
+      --shadow: 0 10px 30px rgba(20, 40, 45, 0.07);
+      --shadow-lg: 0 22px 50px rgba(20, 40, 45, 0.12);
+      --radius: 14px;
     }
 
     * { box-sizing: border-box; }
-
     html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
       background: var(--bg);
       color: var(--ink);
-      font-family: "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
-      line-height: 1.58;
+      font-family: "Microsoft YaHei", "Segoe UI", system-ui, Arial, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
 
-    a { color: var(--blue); }
+    a { color: var(--primary-ink); }
 
+    /* ---------- top bar ---------- */
     .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 30;
+      position: sticky; top: 0; z-index: 40;
       display: grid;
-      grid-template-columns: 220px minmax(220px, 1fr) auto;
-      gap: 16px;
-      align-items: center;
-      padding: 10px clamp(16px, 4vw, 44px);
+      grid-template-columns: auto minmax(180px, 1fr) auto;
+      gap: 14px; align-items: center;
+      padding: 10px clamp(14px, 4vw, 40px);
+      background: rgba(236, 239, 243, 0.88);
+      backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--line);
-      background: rgba(246, 247, 243, 0.94);
-      backdrop-filter: blur(16px);
     }
-
-    .brand {
-      font-weight: 850;
-      letter-spacing: 0;
+    .brand { display: flex; align-items: center; gap: 10px; min-width: 0; font-weight: 800; }
+    .brand > span:last-child { min-width: 0; }
+    .brand .dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+      flex: none;
     }
-
-    .brand small {
-      display: block;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 500;
-    }
-
-    .search {
-      position: relative;
-      max-width: 620px;
-    }
-
+    .brand small { display: block; color: var(--muted); font-size: 11px; font-weight: 500; }
+    .search { position: relative; }
     .search input {
-      width: 100%;
-      min-height: 42px;
-      padding: 9px 14px 9px 42px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--surface);
-      color: var(--ink);
-      font: inherit;
+      width: 100%; min-height: 40px;
+      padding: 8px 14px 8px 38px;
+      border: 1px solid var(--line); border-radius: 10px;
+      background: var(--surface); color: var(--ink); font: inherit;
     }
-
+    .search input:focus { outline: 2px solid var(--primary-soft); border-color: var(--primary); }
     .search svg {
-      position: absolute;
-      left: 14px;
-      top: 50%;
-      width: 18px;
-      height: 18px;
-      transform: translateY(-50%);
-      color: var(--muted);
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      width: 17px; height: 17px; color: var(--faint);
     }
-
     .toplink {
-      min-height: 38px;
-      padding: 8px 12px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--surface);
-      color: var(--teal);
-      font-size: 14px;
-      font-weight: 750;
-      text-decoration: none;
-      white-space: nowrap;
+      min-height: 38px; display: inline-flex; align-items: center;
+      padding: 7px 12px; border: 1px solid var(--line); border-radius: 10px;
+      background: var(--surface); color: var(--primary-ink);
+      font-size: 13px; font-weight: 700; text-decoration: none; white-space: nowrap;
     }
 
+    /* ---------- hero ---------- */
     .hero {
-      border-bottom: 1px solid var(--line);
+      position: relative; overflow: hidden;
       background:
-        linear-gradient(115deg, rgba(15, 107, 104, 0.12), rgba(36, 83, 166, 0.08), rgba(154, 100, 23, 0.08)),
-        var(--surface);
+        radial-gradient(120% 140% at 85% 10%, #0c5246 0%, #07332c 55%, #052520 100%);
+      color: #eafaf6;
+      border-bottom: 1px solid #06302b;
     }
-
     .hero-inner {
-      display: grid;
-      grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
-      gap: 28px;
-      max-width: 1260px;
-      margin: 0 auto;
-      padding: 40px clamp(16px, 4vw, 44px) 32px;
-      align-items: end;
+      position: relative; z-index: 2;
+      display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
+      gap: 30px; align-items: center;
+      max-width: 1200px; margin: 0 auto;
+      padding: 46px clamp(14px, 4vw, 40px) 40px;
     }
-
-    h1 {
-      max-width: 800px;
-      margin: 0;
-      font-size: clamp(34px, 6vw, 66px);
-      line-height: 1.06;
-      letter-spacing: 0;
+    .kicker {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 5px 12px; border-radius: 999px;
+      background: rgba(224, 118, 43, 0.18); color: #ffd9b8;
+      font-size: 12.5px; font-weight: 700; letter-spacing: .02em;
     }
-
-    .hero p {
-      max-width: 790px;
-      margin: 16px 0 0;
-      color: var(--muted);
-      font-size: 17px;
-    }
-
-    .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 22px;
-    }
-
-    .button {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      min-height: 40px;
-      padding: 9px 13px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--surface);
-      color: var(--teal);
-      font-weight: 800;
-      text-decoration: none;
-    }
-
-    .button.primary {
-      border-color: var(--teal);
-      background: var(--teal);
+    .hero h1 {
+      margin: 16px 0 0; max-width: 640px;
+      font-size: clamp(30px, 5.2vw, 52px); line-height: 1.1; letter-spacing: -0.01em;
       color: #ffffff;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    .hero p.lead {
+      margin: 16px 0 0; max-width: 620px;
+      color: #b8d6cf; font-size: 16.5px;
+      overflow-wrap: anywhere;
+    }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      min-height: 42px; padding: 9px 16px; border-radius: 10px;
+      font-weight: 750; font-size: 14.5px; text-decoration: none; cursor: pointer;
+      border: 1px solid transparent;
+    }
+    .btn.primary { background: var(--accent); color: #fff; }
+    .btn.primary:hover { background: #cf6a22; }
+    .btn.ghost { background: rgba(255,255,255,0.08); color: #eafaf6; border-color: rgba(255,255,255,0.22); }
+    .btn.ghost:hover { background: rgba(255,255,255,0.16); }
+
+    .stat-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+    .stat {
+      padding: 10px 14px; border-radius: 12px;
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14);
+      min-width: 96px;
+    }
+    .stat b { display: block; font-size: 24px; line-height: 1; color: #fff; }
+    .stat span { display: block; margin-top: 6px; font-size: 12px; color: #a8c7c0; }
+
+    /* hero radar */
+    .radar-wrap { display: grid; place-items: center; }
+    .radar { width: 100%; max-width: 340px; height: auto; }
+    .radar .ring { fill: none; stroke: rgba(255,255,255,0.13); stroke-width: 1.5; }
+    .radar .cross { stroke: rgba(255,255,255,0.10); stroke-width: 1.5; }
+    .radar .sweep { transform-origin: 200px 200px; animation: spin 6s linear infinite; }
+    .radar .blip { animation: pulse 2.6s ease-in-out infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { 0%,100% { opacity: .35; } 50% { opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) {
+      .radar .sweep { animation: none; }
+      .radar .blip { animation: none; opacity: .9; }
     }
 
-    .button svg {
-      width: 17px;
-      height: 17px;
+    /* ---------- layout ---------- */
+    main { max-width: 1200px; margin: 0 auto; padding: 8px clamp(14px, 4vw, 40px) 70px; }
+    .tabs {
+      position: sticky; top: 61px; z-index: 30;
+      display: flex; gap: 8px; flex-wrap: wrap;
+      padding: 14px 0; margin-bottom: 8px;
+      background: linear-gradient(var(--bg), var(--bg) 70%, transparent);
     }
-
-    .scoreboard {
-      display: grid;
-      gap: 10px;
+    .tabs a {
+      padding: 7px 13px; border: 1px solid var(--line); border-radius: 999px;
+      background: var(--surface); color: var(--ink);
+      font-size: 13.5px; font-weight: 700; text-decoration: none;
     }
+    .tabs a:hover { border-color: var(--primary); color: var(--primary-ink); }
 
-    .score {
-      padding: 14px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--surface);
-      box-shadow: var(--shadow);
-    }
+    section { scroll-margin-top: 120px; margin-bottom: 40px; }
+    .sec-head { margin: 0 0 16px; }
+    .sec-head h2 { margin: 0; font-size: clamp(21px, 3vw, 27px); letter-spacing: -0.01em; }
+    .sec-head p { margin: 6px 0 0; color: var(--muted); font-size: 14.5px; max-width: 760px; }
+    .sec-head .num { color: var(--accent); font-weight: 800; }
 
-    .score strong {
-      display: block;
-      font-size: 28px;
-      line-height: 1;
-    }
-
-    .score span {
-      display: block;
-      margin-top: 7px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    main {
-      max-width: 1260px;
-      margin: 0 auto;
-      padding: 26px clamp(16px, 4vw, 44px) 64px;
-    }
-
-    .nav-tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 22px;
-    }
-
-    .nav-tabs a {
-      display: inline-flex;
-      align-items: center;
-      min-height: 36px;
-      padding: 7px 11px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--surface);
-      color: var(--ink);
-      font-size: 14px;
-      font-weight: 750;
-      text-decoration: none;
-    }
-
-    .section-head {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 16px;
-      margin: 0 0 14px;
-    }
-
-    h2 {
-      margin: 0;
-      font-size: 24px;
-      letter-spacing: 0;
-    }
-
-    .section-head p {
-      margin: 0;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .priority-list {
-      display: grid;
-      gap: 14px;
-      margin-bottom: 30px;
-    }
-
-    .priority-card {
-      display: grid;
-      grid-template-columns: 72px minmax(0, 1fr) minmax(260px, 0.65fr);
-      gap: 16px;
-      align-items: stretch;
-      padding: 18px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--surface);
-      box-shadow: var(--shadow);
-    }
-
-    .rank {
-      display: grid;
-      place-items: center;
-      min-height: 72px;
-      border-radius: 8px;
-      background: var(--soft);
-      color: var(--teal);
-      font-size: 30px;
-      font-weight: 900;
-    }
-
-    .priority-card h3,
-    .mini-card h3,
-    .topic-card h3 {
-      margin: 0 0 8px;
-      font-size: 19px;
-      line-height: 1.35;
-      letter-spacing: 0;
-    }
-
-    .priority-card p,
-    .mini-card p,
-    .topic-card p {
-      margin: 0;
-      color: var(--muted);
-    }
-
-    .benefit {
-      padding: 12px;
-      border-left: 4px solid var(--teal);
-      border-radius: 8px;
-      background: #eef6f4;
-    }
-
-    .meta-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 7px;
-      margin-top: 12px;
-    }
-
+    /* ---------- pills / badges ---------- */
     .pill {
-      display: inline-flex;
-      align-items: center;
-      min-height: 24px;
-      padding: 3px 8px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: var(--soft);
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 750;
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 999px;
+      font-size: 12px; font-weight: 750; border: 1px solid transparent; white-space: nowrap;
     }
+    .pill.p0 { color: var(--p0); background: var(--p0-soft); }
+    .pill.p1 { color: var(--p1); background: var(--p1-soft); }
+    .pill.p2 { color: var(--p2); background: var(--p2-soft); }
+    .pill.confirmed { color: var(--ok); background: var(--ok-soft); }
+    .pill.partial { color: var(--warn); background: var(--warn-soft); }
+    .pill.pending { color: var(--pend); background: var(--pend-soft); }
+    .pill.unknown { color: var(--unk); background: var(--unk-soft); }
+    .pill.tag { color: var(--muted); background: #f1f4f7; border-color: var(--line); font-weight: 600; }
+    .dot-mark { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 
-    .pill.high { color: #ffffff; background: var(--teal); border-color: var(--teal); }
-    .pill.confirmed { color: var(--green); background: #e7f5ed; border-color: #bfe3cd; }
-    .pill.partial { color: var(--gold); background: #fff1d6; border-color: #edcf97; }
-    .pill.pending { color: var(--red); background: #ffeadf; border-color: #f0bea8; }
-    .pill.research { color: var(--blue); background: #e7eefc; border-color: #bfd0f2; }
-
-    .grid-2,
-    .grid-3 {
-      display: grid;
-      gap: 14px;
-      margin-bottom: 30px;
+    /* ---------- focus cards (top 3) ---------- */
+    .focus-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; }
+    .focus-card {
+      position: relative; display: flex; flex-direction: column;
+      padding: 20px; border-radius: var(--radius);
+      background: var(--surface); border: 1px solid var(--line);
+      box-shadow: var(--shadow); overflow: hidden;
     }
-
-    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-
-    .mini-card,
-    .topic-card,
-    .map-panel,
-    .source-panel {
-      padding: 18px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--surface);
-      box-shadow: var(--shadow);
+    .focus-card::before {
+      content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+      background: var(--p1);
     }
-
-    .mini-card h3 span {
-      display: block;
-      margin-bottom: 6px;
-      color: var(--teal);
-      font-size: 13px;
+    .focus-card.p0::before { background: var(--p0); }
+    .focus-card.p2::before { background: var(--p2); }
+    .focus-card .row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .focus-card h3 { margin: 0 0 8px; font-size: 18.5px; line-height: 1.35; }
+    .focus-card .q { color: var(--ink); font-weight: 600; margin: 0 0 10px; font-size: 14.5px; }
+    .focus-card .benefit {
+      margin-top: auto; padding: 11px 12px; border-radius: 10px;
+      background: var(--primary-soft); color: var(--primary-ink); font-size: 13.5px;
     }
+    .focus-card .benefit b { color: var(--primary-ink); }
 
-    .topic-card {
-      min-height: 230px;
+    /* ---------- signals ---------- */
+    .signal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 14px; }
+    .signal {
+      padding: 16px 16px 14px; border-radius: var(--radius);
+      background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow);
     }
-
-    .topic-card .why {
-      margin-top: 12px;
-      padding: 11px;
-      border-radius: 8px;
-      background: #f7f1e7;
-      color: #4c3920;
-      font-size: 14px;
+    .signal .trigger {
+      font-size: 12.5px; color: var(--muted);
+      padding-left: 14px; position: relative; margin-bottom: 10px;
     }
-
-    .map-wrap {
-      overflow-x: auto;
-      padding: 10px 0 2px;
+    .signal .trigger::before {
+      content: ""; position: absolute; left: 0; top: 6px;
+      width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
     }
+    .signal .interest { font-size: 15px; font-weight: 650; margin: 0 0 12px; }
+    .signal .meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .conf { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--muted); font-weight: 700; }
+    .conf i { width: 7px; height: 14px; border-radius: 2px; background: var(--line); display: inline-block; }
+    .conf.high i:nth-child(-n+3), .conf.mid i:nth-child(-n+2), .conf.low i:nth-child(-n+1) { background: var(--primary); }
 
-    .map-wrap svg {
-      width: 100%;
-      min-width: 820px;
-      height: auto;
-      display: block;
-    }
-
-    .node-main { fill: #0f6b68; }
-    .node-a { fill: #2453a6; }
-    .node-b { fill: #9a6417; }
-    .node-c { fill: #157347; }
-    .node-d { fill: #7d3f98; }
-    .node-e { fill: #a23a26; }
-    .node-text { fill: #ffffff; font: 700 15px "Microsoft YaHei", sans-serif; }
-    .node-small { fill: #334047; font: 600 12px "Microsoft YaHei", sans-serif; }
-    .map-line { stroke: #aeb8b0; stroke-width: 2; }
-    .map-note { fill: #eef4f1; stroke: #d9dfd8; }
-
-    .source-grid {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(180px, 1fr));
-      gap: 10px;
-      overflow-x: auto;
-      padding-bottom: 4px;
-    }
-
-    .source-card {
-      min-width: 180px;
-      min-height: 180px;
-      padding: 14px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fbfcfb;
-    }
-
-    .source-card strong {
-      display: block;
-      margin-bottom: 8px;
-      font-size: 15px;
-      line-height: 1.35;
-    }
-
-    .source-card span {
-      display: block;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .source-card a {
-      display: inline-flex;
-      margin-top: 12px;
-      font-size: 13px;
-      font-weight: 800;
-      text-decoration: none;
-    }
-
-    .filter-panel {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
+    /* ---------- topics queue ---------- */
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
     .filter-btn {
-      min-height: 34px;
-      padding: 6px 10px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--surface);
-      color: var(--ink);
-      font: inherit;
-      font-size: 13px;
-      font-weight: 750;
-      cursor: pointer;
+      min-height: 34px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px;
+      background: var(--surface); color: var(--ink); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+    }
+    .filter-btn[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .topic-list { display: grid; gap: 14px; }
+    .topic {
+      display: grid; grid-template-columns: minmax(0,1fr) minmax(240px,0.5fr); gap: 18px;
+      padding: 18px; border-radius: var(--radius);
+      background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow);
+    }
+    .topic h3 { margin: 0 0 6px; font-size: 18px; }
+    .topic .q { margin: 0 0 10px; color: var(--muted); font-size: 14px; }
+    .topic .why { margin: 0; font-size: 14px; }
+    .topic .side {
+      border-left: 1px solid var(--line); padding-left: 18px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .topic .next {
+      padding: 10px 12px; border-radius: 10px; background: #f5f8f7;
+      font-size: 13px; color: var(--ink);
+    }
+    .topic .next b { color: var(--primary-ink); }
+    .topic .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .src-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    /* ---------- methods ---------- */
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 14px; font-size: 12.5px; color: var(--muted); }
+    .legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .method-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap: 14px; }
+    .method {
+      padding: 18px; border-radius: var(--radius);
+      background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow);
+      display: flex; flex-direction: column;
+    }
+    .method .row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .method h3 { margin: 0 0 4px; font-size: 16.5px; }
+    .method .when { color: var(--muted); font-size: 13px; margin: 0 0 10px; }
+    .method ul { margin: 0 0 12px; padding-left: 18px; font-size: 13.5px; }
+    .method li { margin: 3px 0; }
+    .method .benefit {
+      margin-top: auto; padding: 10px 12px; border-radius: 10px;
+      background: var(--accent-soft); color: #8a4a16; font-size: 13px;
     }
 
-    .filter-btn[aria-pressed="true"] {
-      border-color: var(--teal);
-      background: #e2f0ee;
-      color: var(--teal);
+    /* ---------- commands ---------- */
+    .cmd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px,1fr)); gap: 14px; }
+    .cmd {
+      padding: 16px; border-radius: var(--radius);
+      background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow);
+      display: flex; flex-direction: column;
     }
+    .cmd .head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+    .cmd .label { font-weight: 800; font-size: 15px; }
+    .cmd .target { font-size: 11.5px; font-weight: 800; padding: 3px 8px; border-radius: 999px; background: var(--primary-soft); color: var(--primary-ink); }
+    .cmd .target.cc { background: var(--accent-soft); color: #8a4a16; }
+    .cmd .prompt {
+      font-size: 13.5px; background: #f3f6f8; border: 1px solid var(--line);
+      border-radius: 10px; padding: 11px 12px; color: #20303a;
+      word-break: break-word; white-space: pre-wrap; margin: 0 0 10px;
+    }
+    .cmd .guard { font-size: 12px; color: var(--muted); margin: 0 0 12px; }
+    .cmd .copy {
+      align-self: flex-start; margin-top: auto;
+      padding: 8px 14px; border-radius: 9px; border: 1px solid var(--primary);
+      background: var(--primary); color: #fff; font: inherit; font-size: 13px; font-weight: 750; cursor: pointer;
+    }
+    .cmd .copy:hover { background: var(--primary-ink); }
+
+    /* ---------- relationship radar ---------- */
+    .map-panel {
+      padding: 14px; border-radius: var(--radius);
+      background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow);
+    }
+    .map-wrap { overflow-x: auto; }
+    .map-wrap svg { width: 100%; min-width: 640px; height: auto; display: block; }
+    .map-ring { fill: none; stroke: #e1e7ec; stroke-width: 1.5; }
+    .map-line { stroke: #c4d0cd; stroke-width: 2; }
+    .map-hub { fill: #07332c; }
+    .map-node-p0 { fill: var(--p0); } .map-node-p1 { fill: var(--p1); } .map-node-p2 { fill: var(--p2); }
+    .map-t { fill: #fff; font: 700 14px "Microsoft YaHei", sans-serif; }
+    .map-sub { fill: #cfe7e1; font: 600 11.5px "Microsoft YaHei", sans-serif; }
+    .map-small { fill: #fff; font: 650 12.5px "Microsoft YaHei", sans-serif; }
+
+    /* ---------- sources (demoted) ---------- */
+    details.sources { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); overflow: hidden; }
+    details.sources > summary {
+      list-style: none; cursor: pointer; padding: 16px 18px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      font-weight: 750;
+    }
+    details.sources > summary::-webkit-details-marker { display: none; }
+    details.sources > summary .hint { color: var(--muted); font-size: 13px; font-weight: 500; }
+    details.sources > summary .chev { transition: transform .2s; color: var(--faint); }
+    details.sources[open] > summary .chev { transform: rotate(180deg); }
+    .src-table { border-top: 1px solid var(--line); }
+    .src-row {
+      display: grid; grid-template-columns: 30px minmax(0,1fr) auto; gap: 12px; align-items: center;
+      padding: 11px 18px; border-top: 1px solid var(--line); font-size: 13.5px;
+    }
+    .src-row:first-child { border-top: none; }
+    .src-row .r { color: var(--faint); font-weight: 800; font-size: 12px; }
+    .src-row .ti { font-weight: 600; }
+    .src-row .au { color: var(--muted); font-size: 12.5px; }
+    .src-row .right { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+    .src-row a { font-size: 12.5px; font-weight: 700; text-decoration: none; }
+
+    .note {
+      display: flex; gap: 10px; padding: 12px 14px; border-radius: 12px;
+      background: var(--pend-soft); color: #7a2e22; font-size: 13.5px; margin-bottom: 16px;
+      border: 1px solid #f0cdc4;
+    }
+    .note b { color: #7a2e22; }
 
     .empty {
-      display: none;
-      padding: 18px;
-      border: 1px dashed var(--line);
-      border-radius: 8px;
-      color: var(--muted);
-      background: var(--surface);
+      display: none; padding: 18px; border: 1px dashed var(--line); border-radius: 12px;
+      color: var(--muted); background: var(--surface);
+    }
+    footer {
+      margin-top: 30px; padding-top: 18px; border-top: 1px solid var(--line);
+      color: var(--muted); font-size: 13px;
     }
 
-    .footer {
-      margin-top: 34px;
-      padding-top: 18px;
-      border-top: 1px solid var(--line);
-      color: var(--muted);
-      font-size: 13px;
+    /* ---------- responsive ---------- */
+    @media (max-width: 920px) {
+      .hero-inner { grid-template-columns: 1fr; }
+      .radar-wrap { order: initial; }
+      .radar { max-width: 240px; }
+      .focus-grid { grid-template-columns: 1fr; }
+      .topic { grid-template-columns: 1fr; }
+      .topic .side { border-left: none; border-top: 1px solid var(--line); padding-left: 0; padding-top: 14px; }
+      .tabs { top: 57px; }
     }
-
-    @media (max-width: 980px) {
-      .topbar { grid-template-columns: 1fr; }
-      .hero-inner,
-      .priority-card,
-      .grid-2,
-      .grid-3 { grid-template-columns: 1fr; }
-      .source-grid { grid-template-columns: repeat(5, minmax(220px, 1fr)); }
-    }
-
-    @media (max-width: 640px) {
-      .hero-inner { padding-top: 28px; }
-      .section-head { display: block; }
-      h1 { font-size: 36px; }
-      h2 { font-size: 22px; }
-      .rank { min-height: 56px; }
+    @media (max-width: 560px) {
+      .topbar { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; padding: 9px 12px; }
+      .brand { font-size: 16px; }
+      .brand small { font-size: 10px; }
+      .toplink { display: none; }
+      .search { grid-column: 1 / -1; order: 3; }
+      .hero-inner { padding: 34px 20px 32px; gap: 22px; }
+      .hero h1 { font-size: clamp(28px, 11vw, 38px); line-height: 1.12; }
+      .hero p.lead { font-size: 15px; }
+      .kicker { align-items: flex-start; max-width: 100%; white-space: normal; line-height: 1.35; }
+      .hero-actions { display: grid; grid-template-columns: 1fr; }
+      .hero-actions .btn { width: 100%; justify-content: center; }
+      .stat-row { display: grid; grid-template-columns: 1fr; }
+      .stat { min-width: 0; }
+      .radar { max-width: min(220px, 72vw); }
+      .cmd-grid { grid-template-columns: 1fr; }
+      .method-grid { grid-template-columns: 1fr; }
+      .signal-grid { grid-template-columns: 1fr; }
+      .src-row { grid-template-columns: 24px minmax(0,1fr); }
+      .src-row .right { grid-column: 2; justify-content: flex-start; }
     }
   </style>
 </head>
 <body>
   <nav class="topbar" aria-label="顶部导航">
-    <div class="brand">PRJ-003 AI 知识库<small>用户学习驾驶舱</small></div>
+    <div class="brand">
+      <span class="dot" aria-hidden="true"></span>
+      <span>个人 AI 学习雷达<small>PRJ-003 · 兴趣信号驱动</small></span>
+    </div>
     <label class="search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
-      <input id="searchInput" type="search" placeholder="搜索：对我有什么用、Agent、知识库、小知识点..." autocomplete="off">
+      <input id="searchInput" type="search" placeholder="搜课题、信号、方法、命令…（如：设计规范 / 记忆 / 网页质感）" autocomplete="off" aria-label="搜索">
     </label>
-    <a class="toplink" href="https://github.com/zhangjie2759/prj-003-ai-knowledge-base-site">公开站点仓库</a>
+    <a class="toplink" href="#commands">下一步命令</a>
   </nav>
 
   <header class="hero">
     <div class="hero-inner">
       <div>
-        <h1>先告诉你什么最值得学，再让你追溯来源</h1>
-        <p>新版不按文件和编号展示，而按你的使用方式组织：知识优先级、对你的好处、小知识点、继续研究课题，以及这些知识之间的关系。本页已纳入你收藏页前 20 条里的 AI 相关内容。</p>
+        <span class="kicker">把收藏变成可执行的研究课题，而不是又一份视频清单</span>
+        <h1>你现在最该研究什么，一眼看清</h1>
+        <p class="lead">这一页不按视频排序，而按你的兴趣信号组织：你收藏的内容透露了你在意什么，这些在意被整理成有优先级、有下一步、可直接交给 Codex / Claude Code 执行的研究课题。</p>
         <div class="hero-actions">
-          <a class="button primary" href="#priority">先看优先级</a>
-          <a class="button" href="#mindmap">看思维导图</a>
-          <a class="button" href="#research">看深挖课题</a>
+          <a class="btn primary" href="#focus">看本周焦点</a>
+          <a class="btn ghost" href="#map">看知识关系图</a>
         </div>
+        <div class="stat-row" id="statRow" aria-label="概览统计"></div>
       </div>
-      <div class="scoreboard" aria-label="当前整理统计">
-        <div class="score"><strong>20</strong><span>已读取的收藏前排内容</span></div>
-        <div class="score"><strong>19</strong><span>明确 AI / Codex / Skill 相关</span></div>
-        <div class="score"><strong>14</strong><span>容易漏掉的小知识点</span></div>
-        <div class="score"><strong>6</strong><span>值得继续研究的课题</span></div>
+      <div class="radar-wrap" aria-hidden="true">
+        <svg class="radar" viewBox="0 0 400 400" role="img" aria-label="学习雷达示意">
+          <defs>
+            <radialGradient id="sweepGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#36d6b8" stop-opacity="0.55"></stop>
+              <stop offset="100%" stop-color="#36d6b8" stop-opacity="0"></stop>
+            </radialGradient>
+          </defs>
+          <circle class="ring" cx="200" cy="200" r="50"></circle>
+          <circle class="ring" cx="200" cy="200" r="105"></circle>
+          <circle class="ring" cx="200" cy="200" r="160"></circle>
+          <circle class="ring" cx="200" cy="200" r="190"></circle>
+          <line class="cross" x1="200" y1="10" x2="200" y2="390"></line>
+          <line class="cross" x1="10" y1="200" x2="390" y2="200"></line>
+          <g class="sweep">
+            <path d="M200 200 L200 10 A190 190 0 0 1 360 110 Z" fill="url(#sweepGrad)"></path>
+          </g>
+          <circle class="blip" cx="248" cy="132" r="6" fill="#e0762b"></circle>
+          <circle class="blip" cx="150" cy="158" r="5" fill="#36d6b8" style="animation-delay:.6s"></circle>
+          <circle class="blip" cx="262" cy="246" r="5" fill="#ff7a6e" style="animation-delay:1.1s"></circle>
+          <circle class="blip" cx="158" cy="262" r="4" fill="#ffd9b8" style="animation-delay:1.6s"></circle>
+          <circle cx="200" cy="200" r="6" fill="#eafaf6"></circle>
+        </svg>
       </div>
     </div>
   </header>
 
   <main>
-    <div class="nav-tabs">
-      <a href="#priority">优先级</a>
-      <a href="#small-points">小知识点</a>
-      <a href="#research">研究课题</a>
-      <a href="#mindmap">思维导图</a>
-      <a href="#sources">来源</a>
+    <div class="tabs" aria-label="分区导航">
+      <a href="#focus">本周焦点</a>
+      <a href="#signals">兴趣信号</a>
+      <a href="#topics">课题队列</a>
+      <a href="#methods">可用方法</a>
+      <a href="#commands">下一步命令</a>
+      <a href="#map">关系图</a>
+      <a href="#sources">来源追踪</a>
     </div>
 
-    <section id="priority" data-zone="priority">
-      <div class="section-head">
-        <h2>你最该先看的知识顺位</h2>
-        <p>按“对你当前系统建设的价值”排序，而不是按视频顺序排序。</p>
+    <section id="focus">
+      <div class="sec-head">
+        <h2>本周最该研究的 <span class="num">3</span> 件事</h2>
+        <p>按“对你当前项目、组织系统和知识库本身的实际收益”排序，不是按视频热度。</p>
       </div>
-      <div class="priority-list" id="priorityList"></div>
+      <div class="focus-grid" id="focusGrid"></div>
     </section>
 
-    <section id="small-points" data-zone="small-points">
-      <div class="section-head">
-        <h2>内容里值得捡起来的小知识点</h2>
-        <p>这些不是大主题，但很可能帮你少走弯路。</p>
+    <section id="signals">
+      <div class="sec-head">
+        <h2>你的收藏透露了什么 · 兴趣信号</h2>
+        <p>每条不是“视频讲了什么”，而是“你为什么会在意它、它暴露了你想解决的什么问题”。信号是研究课题的起点。</p>
       </div>
-      <div class="filter-panel">
+      <div class="signal-grid" id="signalGrid"></div>
+    </section>
+
+    <section id="topics">
+      <div class="sec-head">
+        <h2>研究课题队列</h2>
+        <p>每个课题都有问题、价值、验证状态和下一步。状态决定它能不能被当作事实使用。</p>
+      </div>
+      <div class="filters" id="topicFilters" role="group" aria-label="按状态筛选课题">
         <button class="filter-btn" data-filter="all" aria-pressed="true">全部</button>
         <button class="filter-btn" data-filter="confirmed" aria-pressed="false">已确认</button>
         <button class="filter-btn" data-filter="partial" aria-pressed="false">部分可信</button>
         <button class="filter-btn" data-filter="pending" aria-pressed="false">待验证</button>
       </div>
-      <div class="grid-2" id="smallPointGrid"></div>
+      <div class="topic-list" id="topicList"></div>
     </section>
 
-    <section id="research" data-zone="research">
-      <div class="section-head">
-        <h2>值得继续深入研究的课题</h2>
-        <p>这些适合成为下一轮采集、调研或实验任务。</p>
+    <section id="methods">
+      <div class="sec-head">
+        <h2>可以立即采用的方法卡</h2>
+        <p>这些是已确认或范围明确的做法，可以直接进入你的项目流程。</p>
       </div>
-      <div class="grid-3" id="topicGrid"></div>
+      <div class="legend" aria-hidden="true">
+        <span><i class="dot-mark" style="background:var(--ok)"></i>立即采用 · 已确认</span>
+        <span><i class="dot-mark" style="background:var(--warn)"></i>值得深挖 · 需继续验证</span>
+        <span><i class="dot-mark" style="background:var(--pend)"></i>小心误导 · 说法夸张或缺证据</span>
+      </div>
+      <div class="method-grid" id="methodGrid"></div>
     </section>
 
-    <section id="mindmap" data-zone="mindmap">
-      <div class="section-head">
-        <h2>知识关系思维导图</h2>
-        <p>看清楚这些新知识如何连到你的 Codex / Claude Code 工作系统。</p>
+    <section id="commands">
+      <div class="sec-head">
+        <h2>下一步命令卡</h2>
+        <p>复制下面的话，直接发给 Codex 或 Claude Code，就能把课题推进一步。每张卡都附了权限与质量边界。</p>
+      </div>
+      <div class="cmd-grid" id="cmdGrid"></div>
+    </section>
+
+    <section id="map">
+      <div class="sec-head">
+        <h2>知识关系图 · 离中心越近越紧急</h2>
+        <p>六个方向围绕你的 AI 学习系统展开；P0 在内圈（当前痛点），P1 在中圈，P2 在外圈。</p>
       </div>
       <div class="map-panel">
-        <div class="map-wrap" aria-label="知识关系图">
-          <svg viewBox="0 0 1100 610" role="img" aria-labelledby="mapTitle mapDesc">
-            <title id="mapTitle">PRJ-003 知识关系思维导图</title>
-            <desc id="mapDesc">中心是 AI 知识库与能力迭代系统，向外连接知识库、AI worker、多 Agent、AI 产品和后续研究课题。</desc>
-            <line class="map-line" x1="550" y1="290" x2="230" y2="120"></line>
-            <line class="map-line" x1="550" y1="290" x2="860" y2="120"></line>
-            <line class="map-line" x1="550" y1="290" x2="210" y2="420"></line>
-            <line class="map-line" x1="550" y1="290" x2="870" y2="420"></line>
-            <line class="map-line" x1="550" y1="290" x2="550" y2="520"></line>
-            <rect class="node-main" x="410" y="238" width="280" height="104" rx="18"></rect>
-            <text class="node-text" x="550" y="280" text-anchor="middle">AI 知识库与能力迭代</text>
-            <text class="node-text" x="550" y="306" text-anchor="middle">用户 / Codex / Claude Code 共用</text>
+        <div class="map-wrap">
+          <svg viewBox="0 0 1000 620" role="img" aria-labelledby="mapTitle mapDesc">
+            <title id="mapTitle">PRJ-003 知识关系雷达</title>
+            <desc id="mapDesc">中心是你的 AI 学习系统，外接设计规范、共享大脑、AI worker、设计 Skill、AI 建站、商业化与影像六个方向，越靠近中心优先级越高。</desc>
+            <circle class="map-ring" cx="500" cy="310" r="120"></circle>
+            <circle class="map-ring" cx="500" cy="310" r="210"></circle>
+            <circle class="map-ring" cx="500" cy="310" r="285"></circle>
+            <line class="map-line" x1="500" y1="310" x2="500" y2="120"></line>
+            <line class="map-line" x1="500" y1="310" x2="690" y2="180"></line>
+            <line class="map-line" x1="500" y1="310" x2="740" y2="430"></line>
+            <line class="map-line" x1="500" y1="310" x2="500" y2="560"></line>
+            <line class="map-line" x1="500" y1="310" x2="260" y2="430"></line>
+            <line class="map-line" x1="500" y1="310" x2="310" y2="180"></line>
 
-            <rect class="node-a" x="80" y="58" width="300" height="124" rx="16"></rect>
-            <text class="node-text" x="230" y="96" text-anchor="middle">知识库先跑流程</text>
-            <text class="node-small" x="230" y="126" text-anchor="middle">来源卡 → 命题 → 验证 → 知识卡</text>
-            <text class="node-small" x="230" y="152" text-anchor="middle">避免一开始就陷入做软件</text>
+            <circle class="map-hub" cx="500" cy="310" r="74"></circle>
+            <text class="map-t" x="500" y="304" text-anchor="middle">AI 学习系统</text>
+            <text class="map-sub" x="500" y="326" text-anchor="middle">用户 · Codex · Claude Code</text>
 
-            <rect class="node-b" x="725" y="58" width="270" height="124" rx="16"></rect>
-            <text class="node-text" x="860" y="96" text-anchor="middle">AI worker 工程化</text>
-            <text class="node-small" x="860" y="126" text-anchor="middle">任务分配 / 验证 / 恢复 / 记录</text>
-            <text class="node-small" x="860" y="152" text-anchor="middle">从 demo 走向可交付</text>
+            <!-- P0 inner -->
+            <g><rect class="map-node-p0" x="396" y="86" width="208" height="62" rx="14"></rect>
+              <text class="map-small" x="500" y="112" text-anchor="middle">设计规范 / AI 味前端</text>
+              <text class="map-sub" x="500" y="132" text-anchor="middle" style="fill:#ffe1da">P0 · 当前最直接痛点</text></g>
+            <g><rect class="map-node-p0" x="206" y="148" width="200" height="62" rx="14"></rect>
+              <text class="map-small" x="306" y="174" text-anchor="middle">共享大脑 / 长期记忆</text>
+              <text class="map-sub" x="306" y="194" text-anchor="middle" style="fill:#ffe1da">P0 · 知识复利</text></g>
 
-            <rect class="node-c" x="64" y="360" width="292" height="124" rx="16"></rect>
-            <text class="node-text" x="210" y="398" text-anchor="middle">多 Agent 协作</text>
-            <text class="node-small" x="210" y="428" text-anchor="middle">角色 / 职责 / 输入 / 输出 / 交接</text>
-            <text class="node-small" x="210" y="454" text-anchor="middle">一句话启动不等于可靠协作</text>
+            <!-- P1 mid -->
+            <g><rect class="map-node-p1" x="600" y="148" width="196" height="62" rx="14"></rect>
+              <text class="map-small" x="698" y="174" text-anchor="middle">AI Worker / 原生组织</text>
+              <text class="map-sub" x="698" y="194" text-anchor="middle">P1 · 多助手协作</text></g>
+            <g><rect class="map-node-p1" x="640" y="400" width="190" height="62" rx="14"></rect>
+              <text class="map-small" x="735" y="426" text-anchor="middle">设计做成 Skill</text>
+              <text class="map-sub" x="735" y="446" text-anchor="middle">P1 · 能力沉淀</text></g>
+            <g><rect class="map-node-p1" x="190" y="400" width="200" height="62" rx="14"></rect>
+              <text class="map-small" x="290" y="426" text-anchor="middle">AI 建站 / VibeCoding</text>
+              <text class="map-sub" x="290" y="446" text-anchor="middle">P1 · 网页质感</text></g>
 
-            <rect class="node-d" x="725" y="360" width="290" height="124" rx="16"></rect>
-            <text class="node-text" x="870" y="398" text-anchor="middle">AI 产品主链路</text>
-            <text class="node-small" x="870" y="428" text-anchor="middle">主流程 / 卡点 / API 降级 / 验收</text>
-            <text class="node-small" x="870" y="454" text-anchor="middle">先能用，再变好看</text>
-
-            <rect class="node-e" x="395" y="516" width="310" height="74" rx="16"></rect>
-            <text class="node-text" x="550" y="548" text-anchor="middle">下一轮研究课题</text>
-            <text class="node-small" x="550" y="574" text-anchor="middle">Obsidian 自动化 / Claude hooks / 多 Agent PM</text>
+            <!-- P2 outer -->
+            <g><rect class="map-node-p2" x="390" y="540" width="220" height="58" rx="14"></rect>
+              <text class="map-small" x="500" y="565" text-anchor="middle">商业化 + 影像特效</text>
+              <text class="map-sub" x="500" y="584" text-anchor="middle" style="fill:#dde6ed">P2 · 储备方向</text></g>
           </svg>
         </div>
       </div>
     </section>
 
-    <section id="sources" data-zone="sources">
-      <div class="section-head">
-        <h2>前20收藏 AI 速览</h2>
-        <p>只公开标题、作者、可见描述提炼和定位方式，不保存完整视频内容；未拿到精确链接的条目标注为收藏页位置。</p>
+    <section id="sources">
+      <div class="sec-head">
+        <h2>来源追踪 · 前 20 条收藏</h2>
+        <p>这些是信号的证据，不是首屏主角。只保留标题、作者、状态和定位，不存完整视频内容。</p>
       </div>
-      <div class="source-panel">
-        <div class="source-grid" id="sourceGrid"></div>
+      <div class="note">
+        <span aria-hidden="true">⚠️</span>
+        <span><b>小心误导：</b>标题里的效率承诺（如“5 秒复刻”“一句话自主协同”“1 小时 7 个 Agent”）只是提取材料，不是事实。具体效果都需要查资料或实测后才能采用。</span>
       </div>
+      <details class="sources">
+        <summary>
+          <span>展开 20 条收藏来源 <span class="hint">已被转化为上面的兴趣信号与课题</span></span>
+          <span class="chev" aria-hidden="true">▾</span>
+        </summary>
+        <div class="src-table" id="srcTable"></div>
+      </details>
     </section>
 
-    <div class="empty" id="emptyState">没有匹配结果。可以搜“主链路”“验证”“Obsidian”“多 Agent”“API”。</div>
+    <div class="empty" id="emptyState">没有匹配结果。试试搜“设计规范”“记忆”“AI worker”“网页质感”“命令”。</div>
 
-    <div class="footer">
-      当前网页是 PRJ-003 公开只读知识库。源仓库继续保持私有；公开页只展示整理后的标题、摘要、知识点和研究方向。最后更新：2026-06-20。
-    </div>
+    <footer>
+      PRJ-003 公开只读学习雷达。源仓库保持私有，公开页只展示整理后的标题级来源、兴趣信号、课题摘要、已确认方法和不敏感关系图。未验证内容均标注状态。最后更新：2026-06-20。
+    </footer>
   </main>
 
   <script>
-    const priorities = [
-      {
-        rank: 1,
-        title: '先建立可验证的知识处理流程',
-        summary: '不要先追求知识库软件形态。先把“来源、命题、验证、知识卡、复用候选”这条链路跑稳。',
-        benefit: '对你的好处：你只需要继续收藏和下任务，系统会逐步把外部内容变成可复用判断，不会变成一堆看过就忘的链接。',
-        source: 'Codex + Obsidian 知识库视频',
-        status: '已确认',
-        tags: ['知识库', '流程优先', 'PRJ-003 核心']
-      },
-      {
-        rank: 2,
-        title: '把 AI worker 当成工程系统，而不是写代码按钮',
-        summary: '真正有用的 AI worker 必须有任务分配、验证、异常恢复和过程记录。',
-        benefit: '对你的好处：你以后可以更放心地让 Codex / Claude Code 做长期任务，因为每一步都有验收和回退。',
-        source: 'AIWorker 进入工程生产视频',
-        status: '已确认',
-        tags: ['AI worker', '验证', '交付']
-      },
-      {
-        rank: 3,
-        title: '多 Agent 协作要文件化',
-        summary: '不要相信“一句话就让多个 Agent 自主协同”的表面说法。可靠协作必须写清角色、职责、输入、输出和交接。',
-        benefit: '对你的好处：这会直接强化你的多员工系统，让复杂项目不靠聊天记忆乱跑。',
-        source: 'Codex 多 Agent / Multi-agent 研究视频',
-        status: '已确认',
-        tags: ['多 Agent', '组织系统', '交接']
-      },
-      {
-        rank: 4,
-        title: 'AI 做产品先跑主链路',
-        summary: '做网页、工具或产品时，先确认主流程、卡点、API/降级方案和成功标准，再做视觉细化。',
-        benefit: '对你的好处：能减少“看起来做完了，其实不能用”的项目，把 Codex 的时间用在真实推进上。',
-        source: 'Vibe Coding 主线流程视频',
-        status: '已确认',
-        tags: ['产品', '主链路', '验收']
-      },
-      {
-        rank: 5,
-        title: '把设计规范做成 Skill，才能让 AI 真懂你的审美',
-        summary: '前20条里多次出现“设计 Skill”“IP配图 Skill”“矢量动画 Skill”，说明可复用视觉能力不只是提示词，而是规范、素材、步骤和验收的组合。',
-        benefit: '对你的好处：你的汽车图像、网页视觉、Logo动效和品牌资产可以逐步沉淀成 Codex/Claude Code 都能复用的审美系统。',
-        source: '设计 Skill / IP配图 / Pixel2Motion 视频',
-        status: '部分可信',
-        tags: ['设计', 'Skill', '审美复用']
-      },
-      {
-        rank: 6,
-        title: 'AI 产品要面对收款、商标、主体和发布这些现实约束',
-        summary: '“AI 做小程序收款”这类内容提醒我们：生成产品只是前半段，真正上线还会遇到支付、命名、商标、主体和平台规则。',
-        benefit: '对你的好处：以后让 AI 做小产品时，可以提前把商业化和合规卡点列入验收，避免做出不能收款或不能发布的半成品。',
-        source: 'AI做小程序收款避坑视频',
-        status: '待验证',
-        tags: ['商业化', '小程序', '避坑']
-      }
-    ];
-
-    const smallPoints = [
-      {
-        title: '“自动化”不是一个功能，而是一组可验证任务',
-        detail: '抓取、整理、复盘、提醒、归档都要拆开验证。视频里说自动迭代，不等于整条链路已经可靠。',
-        value: '帮你避免被宏大演示带偏，先找最小可跑环节。',
-        status: 'confirmed',
-        label: '已确认',
-        source: 'SRC-008-001'
-      },
-      {
-        title: 'Obsidian / Markdown 的价值在可迁移',
-        detail: '第一阶段用 Markdown，不是因为它最炫，而是因为 Codex、Claude Code、GitHub 都能读。',
-        value: '以后要升级网站、搜索或数据库，不会被某个工具锁死。',
-        status: 'confirmed',
-        label: '已确认',
-        source: 'SRC-008-001'
-      },
-      {
-        title: '视频标题里的效率承诺要降级为“待验证”',
-        detail: '例如“1 小时 7 个 agent 完成研究”“一句话自主协同”，都只能作为研究线索。',
-        value: '帮你保留灵感，同时不把营销话术写进事实库。',
-        status: 'pending',
-        label: '待验证',
-        source: 'SRC-008-003 / SRC-008-005'
-      },
-      {
-        title: 'AI worker 的关键不是聪明，而是可恢复',
-        detail: '失败、权限、信息不足、输出不合格时，系统要知道怎么停、怎么记录、怎么重跑。',
-        value: '让 Codex 从“帮一下忙”变成更可靠的工作流节点。',
-        status: 'confirmed',
-        label: '已确认',
-        source: 'SRC-008-002'
-      },
-      {
-        title: 'API 优先是有条件的',
-        detail: 'API 稳定、成本可控、权限明确时优先；否则要设计页面、人工或公开资料降级。',
-        value: '适合你这种多平台资料采集场景，避免硬撞平台权限。',
-        status: 'confirmed',
-        label: '已确认',
-        source: 'SRC-008-004'
-      },
-      {
-        title: 'AI 项目经理要先产出规划文档',
-        detail: '多 Agent 研究不是马上并行开跑，而是先写上下文限制、任务拆分、监控方式和留存规则。',
-        value: '这很适合你以后让 Codex 管多个线程或让 Claude Code 执行复杂研究。',
-        status: 'confirmed',
-        label: '已确认',
-        source: 'SRC-008-005'
-      },
-      {
-        title: '“用户不用整理”不等于系统不用结构',
-        detail: '你可以只下任务，但系统内部必须保留来源、验证、状态和交接。',
-        value: '这是 PRJ-003 的核心产品哲学：把复杂留给系统，把入口留给你。',
-        status: 'confirmed',
-        label: '已确认',
-        source: 'TASK-008'
-      },
-      {
-        title: '具体工具名要慢一点采纳',
-        detail: 'Meridian、CodeBuddy CLI 等具体工具，本轮只记录为线索，不能直接当成熟方案。',
-        value: '避免为了一个视频切换技术路线。',
-        status: 'partial',
-        label: '部分可信',
-        source: 'SRC-008-002 / SRC-008-005'
-      },
-      {
-        title: '信息源库本身也是知识库资产',
-        detail: '“5个AI科技行业宝藏博主”不是单一技巧，而是在提醒我们要沉淀高质量信息源。',
-        value: '你以后不需要随机刷到好内容，而是让 Codex 定期从优质来源里采集和验证。',
-        status: 'partial',
-        label: '部分可信',
-        source: 'TOP20-006'
-      },
-      {
-        title: 'Codex 可以先接管设计里的重复动作',
-        detail: '抠图、改尺寸、批量修改、整理素材这类重复任务，比“替代审美判断”更适合优先交给 AI。',
-        value: '这能把你的精力留给创意、方向和审美，而不是机械操作。',
-        status: 'partial',
-        label: '部分可信',
-        source: 'TOP20-005'
-      },
-      {
-        title: '网页质感来自流程，不只是模型',
-        detail: '电影感网页和告别 AI 味前端都指向同一件事：参考结构、素材、分区修质感、视觉验收比单次生成更重要。',
-        value: '这会直接提升你未来让 Codex 做网站、知识库和展示页的效果。',
-        status: 'confirmed',
-        label: '已确认',
-        source: 'TOP20-015 / TOP20-016'
-      },
-      {
-        title: '长期记忆要做成用户可控的共享层',
-        detail: 'Agent 记忆、共享大脑、Obsidian vault 都在指向同一问题：模型换了，用户经验不能归零。',
-        value: '这正好服务你的“Codex 和 Claude Code 一起成长”的目标。',
-        status: 'partial',
-        label: '部分可信',
-        source: 'TOP20-012'
-      },
-      {
-        title: '小产品上线的难点常常不在生成代码',
-        detail: 'AI 做小程序能收钱，还涉及主体、支付、商标、命名、平台审核和真实用户路径。',
-        value: '以后做商业化小产品时，可以让知识库提前列出非技术风险。',
-        status: 'pending',
-        label: '待验证',
-        source: 'TOP20-002'
-      },
-      {
-        title: '实时 AI 影像要把效果和硬件条件分开看',
-        detail: 'CKLive、FLUX、RTX5090、streamdiffusion 这类内容很容易被效果吸引，但落地受硬件、延迟、稳定性影响。',
-        value: '可以作为创意方向保留，但短期不要抢走知识库和组织系统的优先级。',
-        status: 'pending',
-        label: '待验证',
-        source: 'TOP20-018'
-      }
-    ];
-
+    /* ---------------- data ---------------- */
     const topics = [
-      {
-        title: 'Obsidian + Codex 自动迭代知识库能做到哪一步？',
-        reason: '这是和 PRJ-003 最贴近的方向，值得验证 Web Clipper、Properties、模板和 Git 同步的真实组合。',
-        next: '下一轮找 3-5 个 Obsidian 自动化、Markdown 知识库、Codex 记忆管理案例。'
-      },
-      {
-        title: 'Claude Code hooks / subagents 如何进入你的员工系统？',
-        reason: '这可能把 Claude Code 从单次执行工具变成可检查、可分工、可复用的工程角色。',
-        next: '调研官方示例，做一个最小任务：执行者 + 审核者 + 交接文件。'
-      },
-      {
-        title: 'AI worker 的异常恢复机制怎么设计？',
-        reason: '这是从 demo 到真实生产的分水岭，也是你以后让 Codex 长期代跑的关键。',
-        next: '整理失败类型：权限、信息不足、测试失败、输出低质、外部页面变动。'
-      },
-      {
-        title: '多 Agent 研究的“项目经理文档”模板',
-        reason: '如果你想让 AI 帮你持续研究趋势，需要一个稳定模板来拆分目标、上下文、监控和验收。',
-        next: '从 PRJ-003 的 TASK/HANDOFF 结构中提炼一个研究任务模板。'
-      },
-      {
-        title: 'Vibe Coding 的主链路验收清单',
-        reason: '你经常让 Codex 做网页、小工具、游戏和自动化，这个清单能避免样子货。',
-        next: '把“主流程、卡点、API、降级、验收”做成下一版通用检查卡。'
-      },
-      {
-        title: '公开知识库和私有知识库如何分层？',
-        reason: '现在手机访问需要公开网页，但未来会有更私密的材料，需要明确哪些能公开，哪些只能留在私有仓库。',
-        next: '建立发布分级：公开摘要、私有来源、敏感不发布。'
-      }
+      { id:'T1', title:'设计规范与“AI 味前端”', priority:'P0', status:'partial',
+        question:'优秀网页和视觉到底有哪些可执行规范？怎样系统性地去掉“AI 味”？',
+        why:'直接决定这个知识库、未来产品页和视觉资产的质量，是你当前最直接的痛点。',
+        benefit:'让 Codex / Claude Code 做出来的页面一眼不像模板，更接近你的审美。',
+        sources:[3,5,16], next:'把“参考结构 / 素材 / 层级 / 动效 / 细节 / 移动端”做成一张视觉验收清单。' },
+      { id:'T2', title:'AI 共享大脑与长期记忆', priority:'P0', status:'pending',
+        question:'怎样建立跨模型、跨工具、可迁移可审计的个人与团队记忆层？',
+        why:'决定用户、Codex、Claude Code 能否复利知识，不再每次从零解释。',
+        benefit:'你的项目经验、规则、风格沉淀下来，助手越用越懂你。',
+        sources:[1,12], next:'找 3 条 Obsidian + Agent 记忆案例，验证 vault 结构、插件和 Git 同步。' },
+      { id:'T3', title:'AI Worker 与 AI 原生组织', priority:'P1', status:'partial',
+        question:'怎样把“AI 帮一下忙”升级为可分配、可验收、可恢复的 AI 员工协作系统？',
+        why:'贴合你现在的多项目、多员工愿景，是 Codex 长期代跑的前提。',
+        benefit:'复杂项目不再靠聊天记忆乱跑，每一步都有验收和回退。',
+        sources:[9,14], next:'整理 AI 员工的职责 / 输入 / 输出 / 验收 / 异常恢复模板。' },
+      { id:'T4', title:'把设计做成 Skill', priority:'P1', status:'pending',
+        question:'怎样把审美和视觉经验固化成稳定 Skill（规范+素材+流程+验收），而不是每次重讲？',
+        why:'把一次性审美变成可复用生产力，提升后续所有视觉产出。',
+        benefit:'Codex / Claude Code 更懂你的风格，输出更一致。',
+        sources:[8,11,20], next:'选一个 Logo / 网页 / 动效任务做 Skill 原型。' },
+      { id:'T5', title:'AI 建站与 VibeCoding 质感', priority:'P1', status:'partial',
+        question:'普通人怎样用 AI 快速做出有质感、不像模板的网页和原型？',
+        why:'直接影响知识库和未来网站的可用性与观感。',
+        benefit:'更快做出既能用又好看的页面。',
+        sources:[10,15,17], next:'把“电影感网页 / 告别 AI 味”整理成建站质感检查表。' },
+      { id:'T6', title:'AI 小产品商业化避坑', priority:'P2', status:'pending',
+        question:'AI 做的小产品从 demo 到能收款，真实约束有哪些？',
+        why:'提醒生成页面只是开始，收款、商标、主体、合规往往更难。',
+        benefit:'在投入前看清商业化的坑。',
+        sources:[2], next:'调研小程序收款、商标、主体和发布约束。' },
+      { id:'T7', title:'实时 AI 影像与特效工作流', priority:'P2', status:'pending',
+        question:'实时风格转绘 / 动效 / 视频工具链能落到哪些可用场景？受什么硬件约束？',
+        why:'可扩展视觉资产和创意能力，但短期优先级低于知识库和组织系统。',
+        benefit:'为未来短片、动效、演示储备方向。',
+        sources:[4,13,18], next:'只收集方法和工具线索，暂不做大规模验证。' }
+    ];
+
+    const signals = [
+      { id:'S1', trigger:'Codex + Obsidian 自动迭代知识库、让 Agent 拥有长期记忆机制', interest:'你想要一个能持续积累、不丢失、跨工具可迁移的个人记忆系统。', confidence:'高', topic:'T2' },
+      { id:'S2', trigger:'AIWorker 进入工程生产、AI 原生组织实战', interest:'你想把多个 AI 助手组织成像公司一样可协作、可验收的系统。', confidence:'高', topic:'T3' },
+      { id:'S3', trigger:'设计师用 Codex、把设计做成 Skill、AI 接管 PS、告别 AI 味前端', interest:'你最在意视觉与设计质量，并想把审美变成可复用能力。', confidence:'高', topic:'T1' },
+      { id:'S4', trigger:'用 Codex 做高级感官网、电影感网页、5 秒复刻网红特效', interest:'你想用 AI 快速做出有质感的网页和效果。', confidence:'中', topic:'T5' },
+      { id:'S5', trigger:'全职妈妈靠 AI 做小程序收款，坑全在这条', interest:'你在意 AI 产品能不能真正落地、能不能赚钱。', confidence:'中', topic:'T6' },
+      { id:'S6', trigger:'Pixel2Motion 截图转动画、CKLive / FLUX 实时转绘、边缘色调梦核', interest:'你对视觉、动效和实时影像工具链有持续好奇。', confidence:'中', topic:'T7' },
+      { id:'S7', trigger:'5 个 AI 科技行业宝藏博主', interest:'你想建立稳定的优质信息源，而不只是收单条视频。', confidence:'中', topic:'' }
+    ];
+
+    const methods = [
+      { id:'M1', highlight:'adopt', conclusion:'知识库先跑流程，别先做软件', status:'confirmed',
+        when:'刚开始建知识库或自动化系统时。',
+        steps:['先跑通“来源 → 命题 → 验证 → 知识卡 → 复用”这条链路','用 Markdown 等可迁移格式，不锁死工具','链路稳定后再考虑做软件或站点'],
+        benefit:'避免一上来陷在做工具里，先让外部内容真正变成可复用判断。' },
+      { id:'M2', highlight:'adopt', conclusion:'AI worker 要有分配、验证、恢复、记录', status:'confirmed',
+        when:'让 Codex / Claude Code 做长期或多步任务时。',
+        steps:['任务有明确分配和验收标准','每一步都能验证输出','失败时能停、能记录、能重跑','保留过程记录便于复盘'],
+        benefit:'让助手从“帮一下忙”变成可靠的工作流节点。' },
+      { id:'M3', highlight:'adopt', conclusion:'多 Agent 协作要文件化', status:'confirmed',
+        when:'多个助手或员工协作复杂项目时。',
+        steps:['写清角色、职责、输入、输出','约定交接格式和验收条件','不靠聊天记忆驱动协作'],
+        benefit:'复杂项目不靠记忆乱跑，可追溯、可复核。' },
+      { id:'M4', highlight:'adopt', conclusion:'AI 产品先跑主链路，再美化 UI', status:'confirmed',
+        when:'做网页、工具或产品原型时。',
+        steps:['先确认主流程、卡点、API / 降级方案、成功标准','跑通最小可用版本','再做视觉和细节'],
+        benefit:'减少“看起来做完了其实不能用”的样子货。' },
+      { id:'M5', highlight:'dig', conclusion:'“AI 味”是可诊断的，不是模型不行', status:'partial',
+        when:'觉得 AI 做的网页或图“一眼假”时。',
+        steps:['检查参考是否充足','检查视觉层级是否偏平','检查素材是否真实、细节是否到位','建立视觉验收清单逐项打分'],
+        benefit:'把模糊的“丑”变成可逐项修复的清单。' }
+    ];
+
+    const commands = [
+      { id:'C1', label:'深挖设计规范', target:'Codex',
+        prompt:'围绕“设计规范”和“AI 味前端”，帮我查清优秀网页设计有哪些可执行规范，整理成方法卡、检查清单和 Skill 候选。',
+        guard:'只用官方文档和可信公开来源；未验证的说法标注“待验证”。' },
+      { id:'C2', label:'排我的学习优先级', target:'Codex',
+        prompt:'从我抖音收藏前 20 条里判断我最该优先研究的 5 个 AI 工作流方向，按对我当前项目的价值排序，并更新知识库网页。',
+        guard:'按实际收益排序，不按视频热度；区分已确认与待验证。' },
+      { id:'C3', label:'做网页质感检查表', target:'Claude Code',
+        prompt:'把“电影感网页”“告别 AI 味前端”整理成一张可复用的网页视觉验收清单，并做成 index.html 里的一个静态区块。',
+        guard:'只改 index.html；保持静态、无框架；移动端可读。' },
+      { id:'C4', label:'搭共享记忆原型', target:'Codex',
+        prompt:'找 3 条 Obsidian + Agent 长期记忆案例，验证 vault 结构、插件和 Git 同步，产出一个最小可用的共享大脑方案。',
+        guard:'平台记忆视为黑箱；优先可迁移、可审计的方案。' },
+      { id:'C5', label:'AI 员工协作模板', target:'Codex',
+        prompt:'整理 AI 员工的职责、输入、输出、验收、异常恢复模板，做成可复用的多助手协作规范。',
+        guard:'文件化协作；不靠聊天记忆；保留交接和验收。' }
     ];
 
     const sources = [
-      ['Codex + Obsidian 搭建自动迭代生长知识库', '知雪', '知识库、自动整理、复盘', 'https://www.douyin.com/video/7651623453228816633', '收藏页第1条'],
-      ['全职妈妈靠 AI 做小程序收款，坑全在这条', '佳蔓Jemma', 'AI做小程序、收款、商标、商业化避坑', '', '收藏页第2条'],
-      ['设计师用 Codex 能做什么', '白无常C4D', '设计师、Codex、设计工作流', '', '收藏页第3条'],
-      ['用“边缘色调”还原梦核质感', '麦冬MoonVibe', 'AI教程、梦核风格、视觉风格', '', '收藏页第4条'],
-      ['AI 接管 PS，释放设计师双手', '设计毒物', 'Codex、PS、重复设计工作、AI设计', '', '收藏页第5条'],
-      ['5 个 AI 科技行业宝藏博主', '弗洛哈哈flhh', 'AI趋势、优质信息源、Skill', '', '收藏页第6条'],
-      ['可视化生成器：图像映射到圆形布局', '动不动就饿', '创意工具、可视化、宝藏网站，AI相关性待判断', '', '收藏页第7条'],
-      ['用小黑 Skill 定制自己的 IP 配图', 'Esther不二', 'Skill、IP配图、AI对话日常', '', '收藏页第8条'],
-      ['AIWorker 进入真正工程生产', 'Frank的Agent实验室', 'AI worker、工程生产、验证恢复', 'https://www.douyin.com/video/7647490380754593407', '收藏页第9条'],
-      ['用 Codex 做高级感官网', '元见UGEN', 'Codex、AI商业视觉素材、动效、部署、Skill', '', '收藏页第10条'],
-      ['把设计做成 Skill，AI 的审美直接升级', '西瓜同学', '设计规范、Skill、UI设计、ClaudeCode', '', '收藏页第11条'],
-      ['让 Agent 拥有长期记忆机制', '大模型阿龙', 'Agent、长期记忆、训练机制', '', '收藏页第12条'],
-      ['VibeCoding 高级思维实战：5秒复刻网红特效', 'ai超级个人', 'VibeCoding、Claude、Gemini、特效复刻', '', '收藏页第13条'],
-      ['AI 原生组织实战', '天行社', 'AI原生组织、组织系统', '', '收藏页第14条'],
-      ['AI 建站流：电影感网页，普通人也能照着做', '设计师言炎', 'AI建站、Gemini、Claude Code、素材分区修质感', '', '收藏页第15条'],
-      ['学会这一招，告别 AI 味前端', '哆噶兽', 'AI前端、网页质感、视觉验收', '', '收藏页第16条'],
-      ['Codex + Harness + VibeCoding', '也覌', 'Codex、Harness、VibeCoding，工具链待验证', '', '收藏页第17条'],
-      ['CKLive 实时风格转绘 / FLUX / RTX5090', 'SHOWLAB', '实时AI、AI实时影像、FLUX、硬件条件', '', '收藏页第18条'],
-      ['保姆级 Codex 教程', '刺猬星球super-i', 'Codex教程、电脑操作、AI创作', '', '收藏页第19条'],
-      ['截图转矢量动画 Skill / Pixel2Motion', 'Nolansay', 'Logo动效、矢量动画、Skill、Pixel2Motion', '', '收藏页第20条']
+      { rank:1,  title:'Codex + Obsidian 搭建自动迭代生长知识库', author:'知雪', status:'partial', topics:['T2'], pos:'收藏页第1条', url:'https://www.douyin.com/video/7651623453228816633' },
+      { rank:2,  title:'全职妈妈靠 AI 做小程序收款，坑全在这条', author:'佳蔓Jemma', status:'pending', topics:['T6'], pos:'收藏页第2条', url:'' },
+      { rank:3,  title:'设计师用 Codex 能做什么', author:'白无常C4D', status:'pending', topics:['T1'], pos:'收藏页第3条', url:'' },
+      { rank:4,  title:'用“边缘色调”还原梦核质感', author:'麦冬MoonVibe', status:'pending', topics:['T7'], pos:'收藏页第4条', url:'' },
+      { rank:5,  title:'AI 接管 PS，释放设计师双手', author:'设计毒物', status:'partial', topics:['T1'], pos:'收藏页第5条', url:'' },
+      { rank:6,  title:'5 个 AI 科技行业宝藏博主', author:'弗洛哈哈flhh', status:'partial', topics:[], pos:'收藏页第6条', url:'' },
+      { rank:7,  title:'可视化生成器：图像映射到圆形布局', author:'动不动就饿', status:'unknown', topics:[], pos:'收藏页第7条', url:'' },
+      { rank:8,  title:'用小黑 Skill 定制自己的 IP 配图', author:'Esther不二', status:'pending', topics:['T4'], pos:'收藏页第8条', url:'' },
+      { rank:9,  title:'AIWorker 进入真正工程生产', author:'Frank的Agent实验室', status:'partial', topics:['T3'], pos:'收藏页第9条', url:'https://www.douyin.com/video/7647490380754593407' },
+      { rank:10, title:'用 Codex 做高级感官网', author:'元见UGEN', status:'pending', topics:['T5'], pos:'收藏页第10条', url:'' },
+      { rank:11, title:'把设计做成 Skill，AI 的审美直接升级', author:'西瓜同学', status:'partial', topics:['T4'], pos:'收藏页第11条', url:'' },
+      { rank:12, title:'让 Agent 拥有长期记忆机制', author:'大模型阿龙', status:'pending', topics:['T2'], pos:'收藏页第12条', url:'' },
+      { rank:13, title:'VibeCoding 高级思维实战：5 秒复刻网红特效', author:'ai超级个人', status:'pending', topics:['T5'], pos:'收藏页第13条', url:'' },
+      { rank:14, title:'AI 原生组织实战', author:'天行社', status:'pending', topics:['T3'], pos:'收藏页第14条', url:'' },
+      { rank:15, title:'AI 建站流：电影感网页，普通人也能照着做', author:'设计师言炎', status:'partial', topics:['T5'], pos:'收藏页第15条', url:'' },
+      { rank:16, title:'学会这一招，告别 AI 味前端', author:'哆噶兽', status:'pending', topics:['T1'], pos:'收藏页第16条', url:'' },
+      { rank:17, title:'Codex + Harness + VibeCoding', author:'也覌', status:'pending', topics:['T5'], pos:'收藏页第17条', url:'' },
+      { rank:18, title:'CKLive 实时风格转绘 / FLUX / RTX5090', author:'SHOWLAB', status:'pending', topics:['T7'], pos:'收藏页第18条', url:'' },
+      { rank:19, title:'保姆级 Codex 教程', author:'刺猬星球super-i', status:'partial', topics:[], pos:'收藏页第19条', url:'' },
+      { rank:20, title:'截图转矢量动画 Skill / Pixel2Motion', author:'Nolansay', status:'pending', topics:['T4'], pos:'收藏页第20条', url:'' }
     ];
 
+    /* ---------------- helpers ---------------- */
+    const STATUS_LABEL = { confirmed:'已确认', partial:'部分可信', pending:'待验证', unknown:'待判断' };
+    const CONF_CLASS = { '高':'high', '中':'mid', '低':'low' };
+    const $ = id => document.getElementById(id);
+
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, c => (
+        { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]
+      ));
+    }
+    function topicTitle(id) {
+      const t = topics.find(x => x.id === id);
+      return t ? t.title : id;
+    }
+    function statusPill(status) {
+      return `<span class="pill ${status}">${esc(STATUS_LABEL[status] || status)}</span>`;
+    }
+
     let currentStatus = 'all';
-    let currentQuery = '';
+    let query = '';
+    function hit(text) { return !query || String(text).toLowerCase().includes(query); }
 
-    function normalize(value) {
-      return String(value || '').toLowerCase();
+    /* ---------------- render ---------------- */
+    function renderStats() {
+      const p0 = topics.filter(t => t.priority === 'P0').length;
+      const data = [
+        [topics.length, '研究课题'],
+        [signals.length, '兴趣信号'],
+        [p0, 'P0 当前痛点'],
+        [methods.length, '可用方法卡']
+      ];
+      $('statRow').innerHTML = data.map(d =>
+        `<div class="stat"><b>${d[0]}</b><span>${esc(d[1])}</span></div>`
+      ).join('');
     }
 
-    function visibleText(item) {
-      return normalize(Object.values(item).join(' '));
-    }
-
-    function matchQuery(item) {
-      return !currentQuery || visibleText(item).includes(normalize(currentQuery));
-    }
-
-    function renderPriorities() {
-      document.getElementById('priorityList').innerHTML = priorities
-        .filter(matchQuery)
-        .map(item => `
-          <article class="priority-card" data-search="${visibleText(item)}">
-            <div class="rank">${item.rank}</div>
-            <div>
-              <h3>${item.title}</h3>
-              <p>${item.summary}</p>
-              <div class="meta-row">
-                <span class="pill high">高优先级</span>
-                <span class="pill confirmed">${item.status}</span>
-                ${item.tags.map(tag => `<span class="pill">${tag}</span>`).join('')}
-              </div>
-            </div>
-            <div class="benefit">
-              <strong>对你的好处</strong>
-              <p>${item.benefit}</p>
-              <div class="meta-row"><span class="pill">${item.source}</span></div>
-            </div>
-          </article>
-        `).join('');
-    }
-
-    function renderSmallPoints() {
-      const items = smallPoints.filter(item => {
-        const statusOk = currentStatus === 'all' || item.status === currentStatus;
-        return statusOk && matchQuery(item);
-      });
-      document.getElementById('smallPointGrid').innerHTML = items.map(item => `
-        <article class="mini-card" data-search="${visibleText(item)}">
-          <h3><span>${item.source}</span>${item.title}</h3>
-          <p>${item.detail}</p>
-          <div class="benefit" style="margin-top: 12px;">
-            <strong>对你的好处</strong>
-            <p>${item.value}</p>
+    function renderFocus() {
+      const order = { P0:0, P1:1, P2:2, P3:3 };
+      const top = [...topics].sort((a, b) => order[a.priority] - order[b.priority]).slice(0, 3);
+      $('focusGrid').innerHTML = top.map(t => `
+        <article class="focus-card ${t.priority.toLowerCase()}">
+          <div class="row">
+            <span class="pill ${t.priority.toLowerCase()}">${t.priority}</span>
+            ${statusPill(t.status)}
           </div>
-          <div class="meta-row"><span class="pill ${item.status}">${item.label}</span></div>
-        </article>
-      `).join('');
+          <h3>${esc(t.title)}</h3>
+          <p class="q">${esc(t.question)}</p>
+          <div class="benefit"><b>对你的好处：</b>${esc(t.benefit)}</div>
+        </article>`).join('');
+    }
+
+    function renderSignals() {
+      const items = signals.filter(s => hit(s.trigger + s.interest + s.id + topicTitle(s.topic)));
+      $('signalGrid').innerHTML = items.map(s => {
+        const cc = CONF_CLASS[s.confidence] || 'low';
+        const link = s.topic
+          ? `<a class="pill tag" href="#topics">→ ${esc(topicTitle(s.topic))}</a>`
+          : `<span class="pill tag">信息源池</span>`;
+        return `
+        <article class="signal">
+          <div class="trigger">收藏触发：${esc(s.trigger)}</div>
+          <p class="interest">${esc(s.interest)}</p>
+          <div class="meta">
+            <span class="conf ${cc}" title="推断可信度">把握 ${esc(s.confidence)} <i></i><i></i><i></i></span>
+            ${link}
+          </div>
+        </article>`;
+      }).join('');
+      return items.length;
     }
 
     function renderTopics() {
-      document.getElementById('topicGrid').innerHTML = topics
-        .filter(matchQuery)
-        .map(item => `
-          <article class="topic-card" data-search="${visibleText(item)}">
-            <div class="meta-row" style="margin-top: 0;"><span class="pill research">值得深挖</span></div>
-            <h3>${item.title}</h3>
-            <p>${item.reason}</p>
-            <div class="why"><strong>建议下一步：</strong>${item.next}</div>
-          </article>
-        `).join('');
+      const items = topics.filter(t => {
+        const statusOk = currentStatus === 'all' || t.status === currentStatus;
+        return statusOk && hit(t.title + t.question + t.why + t.benefit + t.next);
+      });
+      $('topicList').innerHTML = items.map(t => `
+        <article class="topic">
+          <div>
+            <div class="badges">
+              <span class="pill ${t.priority.toLowerCase()}">${t.priority}</span>
+              ${statusPill(t.status)}
+            </div>
+            <h3>${esc(t.title)}</h3>
+            <p class="q">${esc(t.question)}</p>
+            <p class="why"><b>为什么重要：</b>${esc(t.why)}</p>
+          </div>
+          <div class="side">
+            <div class="next"><b>下一步：</b>${esc(t.next)}</div>
+            <div>
+              <div style="font-size:12px;color:var(--faint);font-weight:700;margin-bottom:6px;">来源信号</div>
+              <div class="src-tags">${t.sources.map(r => `<span class="pill tag">收藏 #${r}</span>`).join('')}</div>
+            </div>
+          </div>
+        </article>`).join('');
+      return items.length;
+    }
+
+    function renderMethods() {
+      const HL = { adopt:['立即采用','var(--ok)'], dig:['值得深挖','var(--warn)'], caution:['小心误导','var(--pend)'] };
+      const items = methods.filter(m => hit(m.conclusion + m.when + m.steps.join('') + m.benefit));
+      $('methodGrid').innerHTML = items.map(m => {
+        const h = HL[m.highlight] || HL.dig;
+        return `
+        <article class="method">
+          <div class="row">
+            <span class="pill" style="color:${h[1]};background:transparent;border:1px solid var(--line)"><i class="dot-mark" style="background:${h[1]}"></i>${h[0]}</span>
+            ${statusPill(m.status)}
+          </div>
+          <h3>${esc(m.conclusion)}</h3>
+          <p class="when">适用：${esc(m.when)}</p>
+          <ul>${m.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ul>
+          <div class="benefit">${esc(m.benefit)}</div>
+        </article>`;
+      }).join('');
+      return items.length;
+    }
+
+    function renderCommands() {
+      const items = commands.filter(c => hit(c.label + c.prompt + c.guard + c.target));
+      $('cmdGrid').innerHTML = items.map(c => {
+        const cc = c.target === 'Claude Code' ? ' cc' : '';
+        return `
+        <article class="cmd">
+          <div class="head">
+            <span class="label">${esc(c.label)}</span>
+            <span class="target${cc}">→ ${esc(c.target)}</span>
+          </div>
+          <p class="prompt">${esc(c.prompt)}</p>
+          <p class="guard"><b>边界：</b>${esc(c.guard)}</p>
+          <button class="copy" type="button" data-copy="${esc(c.id)}">复制命令</button>
+        </article>`;
+      }).join('');
+      return items.length;
     }
 
     function renderSources() {
-      document.getElementById('sourceGrid').innerHTML = sources
-        .filter(row => !currentQuery || normalize(row.join(' ')).includes(normalize(currentQuery)))
-        .map(row => `
-        <article class="source-card">
-            <strong>${row[0]}</strong>
-            <span>${row[1]}</span>
-            <span>${row[2]}</span>
-            ${row[3] ? `<a href="${row[3]}">打开抖音来源</a>` : `<span>${row[4]}</span>`}
-          </article>
-        `).join('');
+      const items = sources.filter(s => hit(s.title + s.author + s.pos + s.topics.map(topicTitle).join('')));
+      $('srcTable').innerHTML = items.map(s => {
+        const tagHtml = s.topics.length
+          ? s.topics.map(id => `<span class="pill tag">${esc(topicTitle(id))}</span>`).join('')
+          : '';
+        const right = s.url
+          ? `${statusPill(s.status)}<a href="${esc(s.url)}" target="_blank" rel="noopener">打开抖音 ↗</a>`
+          : `${statusPill(s.status)}<span class="au">${esc(s.pos)}</span>`;
+        return `
+        <div class="src-row">
+          <span class="r">${s.rank}</span>
+          <div>
+            <div class="ti">${esc(s.title)}</div>
+            <div class="au">${esc(s.author)}</div>
+            <div class="src-tags" style="margin-top:6px;">${tagHtml}</div>
+          </div>
+          <div class="right">${right}</div>
+        </div>`;
+      }).join('');
+      return items.length;
     }
 
     function renderAll() {
-      renderPriorities();
-      renderSmallPoints();
-      renderTopics();
-      renderSources();
-      const total =
-        document.getElementById('priorityList').children.length +
-        document.getElementById('smallPointGrid').children.length +
-        document.getElementById('topicGrid').children.length +
-        document.getElementById('sourceGrid').children.length;
-      document.getElementById('emptyState').style.display = total ? 'none' : 'block';
+      renderFocus();
+      const n = renderSignals() + renderTopics() + renderMethods() + renderCommands() + renderSources();
+      $('emptyState').style.display = (query && n === 0) ? 'block' : 'none';
     }
 
-    document.querySelectorAll('.filter-btn').forEach(button => {
-      button.addEventListener('click', () => {
-        currentStatus = button.dataset.filter;
-        document.querySelectorAll('.filter-btn').forEach(btn => btn.setAttribute('aria-pressed', String(btn === button)));
-        renderAll();
-      });
+    /* ---------------- events ---------------- */
+    $('topicFilters').addEventListener('click', e => {
+      const btn = e.target.closest('.filter-btn');
+      if (!btn) return;
+      currentStatus = btn.dataset.filter;
+      $('topicFilters').querySelectorAll('.filter-btn')
+        .forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
+      renderTopics();
     });
 
-    document.getElementById('searchInput').addEventListener('input', event => {
-      currentQuery = event.target.value.trim();
+    $('searchInput').addEventListener('input', e => {
+      query = e.target.value.trim().toLowerCase();
       renderAll();
     });
 
+    $('cmdGrid').addEventListener('click', e => {
+      const btn = e.target.closest('[data-copy]');
+      if (!btn) return;
+      const cmd = commands.find(c => c.id === btn.dataset.copy);
+      if (!cmd) return;
+      const done = ok => { const old = '复制命令'; btn.textContent = ok ? '已复制 ✓' : '请手动复制'; setTimeout(() => btn.textContent = old, 1600); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(cmd.prompt).then(() => done(true)).catch(() => done(false));
+      } else {
+        done(false);
+      }
+    });
+
+    renderStats();
     renderAll();
   </script>
 </body>
