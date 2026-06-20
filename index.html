@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PRJ-003 AI 知识库</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f6f1;
+      --surface: #ffffff;
+      --surface-alt: #eef3f0;
+      --ink: #1e2428;
+      --muted: #667076;
+      --line: #d8ded7;
+      --accent: #0f6b68;
+      --accent-2: #2453a6;
+      --confirmed: #157347;
+      --partial: #8a5a12;
+      --pending: #9a3412;
+      --shadow: 0 16px 40px rgba(32, 41, 37, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.55;
+    }
+
+    a { color: var(--accent-2); }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 64px;
+      padding: 10px clamp(18px, 4vw, 44px);
+      border-bottom: 1px solid var(--line);
+      background: rgba(245, 246, 241, 0.94);
+      backdrop-filter: blur(16px);
+    }
+
+    .brand {
+      min-width: 220px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .brand span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .search {
+      position: relative;
+      width: min(520px, 100%);
+    }
+
+    .search svg {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      width: 18px;
+      height: 18px;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    .search input {
+      width: 100%;
+      min-height: 42px;
+      padding: 9px 14px 9px 40px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--ink);
+      font: inherit;
+    }
+
+    .repo-link {
+      white-space: nowrap;
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .hero {
+      padding: 36px clamp(18px, 4vw, 44px) 26px;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(120deg, rgba(15, 107, 104, 0.1), rgba(36, 83, 166, 0.08)),
+        var(--surface);
+    }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+      gap: 28px;
+      max-width: 1240px;
+      margin: 0 auto;
+      align-items: end;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 780px;
+      font-size: clamp(34px, 6vw, 64px);
+      line-height: 1.06;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 760px;
+      margin: 16px 0 0;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stat {
+      min-height: 86px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    main {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 24px clamp(18px, 4vw, 44px) 56px;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--ink);
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .tab svg {
+      width: 17px;
+      height: 17px;
+    }
+
+    .tab[aria-pressed="true"] {
+      border-color: var(--accent);
+      background: #e2f0ee;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 18px;
+      margin: 0 0 12px;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: 0;
+    }
+
+    .section-title span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 26px;
+    }
+
+    .card {
+      min-height: 210px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .card h3 {
+      margin: 10px 0 10px;
+      font-size: 18px;
+      line-height: 1.35;
+      letter-spacing: 0;
+    }
+
+    .eyebrow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 3px 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--surface-alt);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .badge.confirmed { color: var(--confirmed); background: #e7f5ed; border-color: #bbdfc9; }
+    .badge.partial { color: var(--partial); background: #fff1d6; border-color: #edd19a; }
+    .badge.pending { color: var(--pending); background: #ffeadf; border-color: #f2c0a8; }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .action {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 34px;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .action svg {
+      width: 15px;
+      height: 15px;
+    }
+
+    .side {
+      position: sticky;
+      top: 86px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .panel {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    .brief-list {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .brief-list li + li { margin-top: 8px; }
+
+    .source-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .source-table th,
+    .source-table td {
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    .source-table th {
+      color: var(--muted);
+      background: var(--surface-alt);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .empty {
+      display: none;
+      padding: 22px;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      background: var(--surface);
+    }
+
+    .footer {
+      margin-top: 28px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 980px) {
+      .hero-inner, .layout { grid-template-columns: 1fr; }
+      .side { position: static; }
+    }
+
+    @media (max-width: 720px) {
+      .topbar {
+        position: static;
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .repo-link { white-space: normal; }
+      .stats, .card-grid { grid-template-columns: 1fr; }
+      .source-table { display: block; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="topbar" aria-label="顶部导航">
+    <div class="brand">PRJ-003 AI 知识库<span>只读查阅版</span></div>
+    <label class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+      <input id="searchInput" type="search" placeholder="搜索：Codex、Agent、知识库、验证、来源..." autocomplete="off">
+    </label>
+    <a class="repo-link" href="https://github.com/zhangjie2759/prj-003-ai-knowledge-base">GitHub 仓库</a>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <div>
+        <h1>把抖音收藏变成可验证的 AI 工作知识</h1>
+        <p>这里不是文件堆。每条外部内容都会被拆成来源、命题、验证状态、正式知识卡和助手可复用方法，你只需要查看结论或追溯来源。</p>
+      </div>
+      <div class="stats" aria-label="当前知识库统计">
+        <div class="stat"><strong>5</strong><span>本轮抖音来源</span></div>
+        <div class="stat"><strong>10</strong><span>知识命题</span></div>
+        <div class="stat"><strong>4</strong><span>正式知识卡</span></div>
+        <div class="stat"><strong>4</strong><span>助手知识候选</span></div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="tabs" aria-label="知识筛选">
+      <button class="tab" data-filter="all" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 4h16v16H4z"></path><path d="M4 9h16"></path><path d="M9 4v16"></path></svg>全部</button>
+      <button class="tab" data-filter="card" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 4h12v16H6z"></path><path d="M9 8h6"></path><path d="M9 12h6"></path></svg>知识卡</button>
+      <button class="tab" data-filter="source" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.1 0l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1"></path><path d="M14 11a5 5 0 0 0-7.1 0l-2 2A5 5 0 0 0 12 20.1l1.1-1.1"></path></svg>来源</button>
+      <button class="tab" data-filter="proposition" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>命题</button>
+      <button class="tab" data-filter="assistant" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 8V4H8"></path><rect x="4" y="8" width="16" height="12" rx="2"></rect><path d="M2 14h2"></path><path d="M20 14h2"></path><path d="M9 13h.01"></path><path d="M15 13h.01"></path></svg>助手复用</button>
+    </div>
+
+    <div class="layout">
+      <div>
+        <div class="section-title">
+          <h2>正式知识卡</h2>
+          <span>已确认内容优先看这里</span>
+        </div>
+        <div class="card-grid" id="knowledgeGrid"></div>
+
+        <div class="section-title">
+          <h2>来源追溯</h2>
+          <span>本轮来自你的抖音收藏</span>
+        </div>
+        <table class="source-table" id="sourceTable">
+          <thead>
+            <tr><th>来源</th><th>标题</th><th>作者</th><th>主题</th><th>链接</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+
+        <div class="section-title" style="margin-top: 26px;">
+          <h2>知识命题</h2>
+          <span>含待验证与不采纳风险</span>
+        </div>
+        <div class="card-grid" id="propositionGrid"></div>
+        <div class="empty" id="emptyState">没有匹配结果。换一个关键词试试，比如 Codex、Agent、验证、主链路。</div>
+      </div>
+
+      <aside class="side">
+        <section class="panel" data-type="brief" data-search="学习摘要 下一步 Codex Claude Code 多 Agent 主链路">
+          <h2>先看这四点</h2>
+          <ol class="brief-list">
+            <li>知识库先跑流程，不急着做软件。</li>
+            <li>AI worker 进入生产必须有验证和恢复。</li>
+            <li>多 Agent 协作不能只靠一句话。</li>
+            <li>AI 做产品先跑主链路和成功标准。</li>
+          </ol>
+          <div class="actions">
+            <a class="action" href="runs/2026-06-20-task-008/LEARNING_BRIEF.md"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7"></path><path d="M7 7h10v10"></path></svg>完整摘要</a>
+          </div>
+        </section>
+
+        <section class="panel" data-type="assistant" data-search="助手知识候选 Codex Claude Code 检查清单">
+          <h2>助手复用候选</h2>
+          <ul class="brief-list">
+            <li>外部内容默认输出五层：来源卡、命题、知识卡、用户摘要、助手候选。</li>
+            <li>AI worker 检查任务分配、调度、验证、异常恢复、过程记录。</li>
+            <li>多 Agent 先确认角色、职责、交接、验收和权限边界。</li>
+            <li>AI 产品先主链路后视觉。</li>
+          </ul>
+          <div class="actions">
+            <a class="action" href="runs/2026-06-20-task-008/ASSISTANT_KNOWLEDGE_CANDIDATES.md"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7"></path><path d="M7 7h10v10"></path></svg>查看候选</a>
+          </div>
+        </section>
+
+        <section class="panel" data-type="brief" data-search="边界 豆包 抖音 隐私 验证">
+          <h2>安全边界</h2>
+          <ul class="brief-list">
+            <li>不保存完整视频内容。</li>
+            <li>豆包输出只作提取材料，不作事实依据。</li>
+            <li>未验证内容必须标记状态。</li>
+            <li>不读取密码、验证码、私信、支付或账号安全信息。</li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+
+    <div class="footer">
+      当前站点由 PRJ-003 GitHub 仓库生成。最后更新：2026-06-20。下一轮采集后，这里会继续追加新的来源、命题和知识卡。
+    </div>
+  </main>
+
+  <script>
+    const iconLink = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7"></path><path d="M7 7h10v10"></path></svg>';
+
+    const knowledgeCards = [
+      {
+        id: 'KC-008-001',
+        type: 'card',
+        status: '已确认',
+        statusClass: 'confirmed',
+        title: '知识库 MVP 先用 Markdown/Obsidian 跑通流程',
+        summary: 'PRJ-003 第一阶段应优先用 Markdown/Obsidian 类结构化文件跑通知识处理流程，而不是先开发完整软件。',
+        source: 'SRC-008-001',
+        tags: ['知识库', 'Markdown', 'Obsidian', 'MVP'],
+        href: 'runs/2026-06-20-task-008/KNOWLEDGE_CARDS.md'
+      },
+      {
+        id: 'KC-008-002',
+        type: 'card',
+        status: '已确认',
+        statusClass: 'confirmed',
+        title: 'AI worker 工程化必须包含分配、验证、恢复和记录',
+        summary: '让 AI 进入工程生产，不是让它多写代码，而是建立任务分配、结果验证、异常恢复和过程记录。',
+        source: 'SRC-008-002',
+        tags: ['AI worker', '工程化', '验证', '恢复'],
+        href: 'runs/2026-06-20-task-008/KNOWLEDGE_CARDS.md'
+      },
+      {
+        id: 'KC-008-003',
+        type: 'card',
+        status: '已确认',
+        statusClass: 'confirmed',
+        title: '多 Agent 协作要文件化，而不是只靠一句话',
+        summary: '多 Agent 协作应把角色、职责、输入、输出、交接和验收写成可审查文件。',
+        source: 'SRC-008-003 / SRC-008-005',
+        tags: ['多 Agent', 'Codex', 'Claude Code', '交接'],
+        href: 'runs/2026-06-20-task-008/KNOWLEDGE_CARDS.md'
+      },
+      {
+        id: 'KC-008-004',
+        type: 'card',
+        status: '已确认',
+        statusClass: 'confirmed',
+        title: 'AI 产品先跑主链路和成功标准',
+        summary: 'AI 做产品或网页时，先跑通核心链路、卡点验证、API/降级方案和成功标准，再做 UI 美化。',
+        source: 'SRC-008-004',
+        tags: ['Vibe Coding', '产品', '主链路', '验收'],
+        href: 'runs/2026-06-20-task-008/KNOWLEDGE_CARDS.md'
+      }
+    ];
+
+    const sources = [
+      { id: 'SRC-008-001', type: 'source', title: '教你用 Codex + Obsidian 搭建自动迭代生长知识库', author: '知雪', topic: 'Codex、Obsidian、知识库、自动整理、复盘', href: 'https://www.douyin.com/video/7651623453228816633' },
+      { id: 'SRC-008-002', type: 'source', title: 'VibeCoding 大赏｜让 AIWorker 进入真正工程生产', author: 'Frank的Agent实验室', topic: 'AI worker、工程生产、多 Agent 编排、验证、异常恢复', href: 'https://www.douyin.com/video/7647490380754593407' },
+      { id: 'SRC-008-003', type: 'source', title: '让 Codex 多 Agent 自主协同，只要说了一句话', author: '珍妮丁丁说AI', topic: 'Codex、多 Agent、协作机制、AI 团队', href: 'https://www.douyin.com/video/7649987398285249798' },
+      { id: 'SRC-008-004', type: 'source', title: 'Vibe Coding02：小白做产品，先跑通主线流程', author: '珍妮丁丁说AI', topic: 'AI 产品开发、主链路、卡点验证、API、Spec、成功标准', href: 'https://www.douyin.com/video/7649038685517712694' },
+      { id: 'SRC-008-005', type: 'source', title: '如何让 AI 指导 Multi-agent 做研究', author: '晓辉博士', topic: 'AI 项目经理、多 Agent 研究、上下文窗口、协作、监控文档、Claude Code', href: 'https://www.douyin.com/video/7619361092325820602' }
+    ];
+
+    const propositions = [
+      { id: 'KP-008-001', type: 'proposition', status: '已确认', statusClass: 'confirmed', title: '先用 Markdown/Obsidian 跑通知识库流程，比先开发完整软件更适合 PRJ-003 MVP。', source: 'SRC-008-001', risk: '过早自动化会掩盖流程问题' },
+      { id: 'KP-008-002', type: 'proposition', status: '部分可信', statusClass: 'partial', title: 'Codex + Obsidian 可作为“代码/分析助手 + 本地结构化知识库”的组合，但自动复盘效果需另行验证。', source: 'SRC-008-001', risk: '把视频效果承诺误写成事实' },
+      { id: 'KP-008-003', type: 'proposition', status: '已确认', statusClass: 'confirmed', title: 'AI worker 进入工程生产时，必须有任务分配、结果验证、异常恢复和过程记录。', source: 'SRC-008-002', risk: '只看 demo 容易忽略失败恢复' },
+      { id: 'KP-008-004', type: 'proposition', status: '待验证', statusClass: 'pending', title: '“Meridian 是成熟 AI worker orchestration system”这一具体产品判断不能在本轮确认。', source: 'SRC-008-002', risk: '被单个视频带偏工具选型' },
+      { id: 'KP-008-005', type: 'proposition', status: '已确认', statusClass: 'confirmed', title: '多 Agent 协作不能只靠一句启动口令，应拆成角色、职责、输入、输出、交接和验收。', source: 'SRC-008-003', risk: '协作越多，越容易职责漂移' },
+      { id: 'KP-008-006', type: 'proposition', status: '已确认', statusClass: 'confirmed', title: 'Claude Code 可用 subagents 和 hooks 支撑部分可复用协作链路，但不能替代项目负责人判断。', source: 'SRC-008-003 / SRC-008-005', risk: '自动化越强，越需要边界和审计' },
+      { id: 'KP-008-007', type: 'proposition', status: '已确认', statusClass: 'confirmed', title: 'AI 做产品时应先跑通主线流程、卡点验证、API 方案和成功标准，再做 UI 美化。', source: 'SRC-008-004', risk: '只做表面 UI 会产生样子货 MVP' },
+      { id: 'KP-008-008', type: 'proposition', status: '已确认', statusClass: 'confirmed', title: '“优先用 API”是有条件建议：API 可用、稳定、成本可控时优先；否则应设计降级。', source: 'SRC-008-004', risk: '误用 API 或绕过平台限制' },
+      { id: 'KP-008-009', type: 'proposition', status: '已确认', statusClass: 'confirmed', title: '多 Agent 研究任务应先生成规划文档，再分配执行；规划需覆盖上下文、协作、监控和留存。', source: 'SRC-008-005', risk: '规划过重会拖慢小任务' },
+      { id: 'KP-008-010', type: 'proposition', status: '待验证', statusClass: 'pending', title: '视频中“7 个 agent 1 小时完成研究”的效果不能作为本项目事实。', source: 'SRC-008-005', risk: '夸大效率预期' }
+    ];
+
+    let currentFilter = 'all';
+    let currentQuery = '';
+
+    function normalize(value) {
+      return String(value || '').toLowerCase();
+    }
+
+    function matches(item) {
+      const typeOk = currentFilter === 'all' || item.type === currentFilter;
+      const haystack = normalize(Object.values(item).flat().join(' '));
+      const queryOk = !currentQuery || haystack.includes(normalize(currentQuery));
+      return typeOk && queryOk;
+    }
+
+    function cardTemplate(item) {
+      const tags = (item.tags || []).map(tag => `<span class="badge">${tag}</span>`).join('');
+      return `
+        <article class="card" data-type="${item.type}" data-search="${[item.id, item.title, item.summary, item.source, (item.tags || []).join(' ')].join(' ')}">
+          <div class="eyebrow"><span>${item.id}</span><span class="badge ${item.statusClass}">${item.status}</span></div>
+          <h3>${item.title}</h3>
+          <p>${item.summary}</p>
+          <div class="eyebrow" style="margin-top: 12px;">来源：${item.source}</div>
+          <div class="actions">${tags}<a class="action" href="${item.href}">${iconLink}详情</a></div>
+        </article>
+      `;
+    }
+
+    function propositionTemplate(item) {
+      return `
+        <article class="card" data-type="${item.type}" data-search="${[item.id, item.title, item.source, item.risk, item.status].join(' ')}">
+          <div class="eyebrow"><span>${item.id}</span><span class="badge ${item.statusClass}">${item.status}</span></div>
+          <h3>${item.title}</h3>
+          <p>来源：${item.source}</p>
+          <p style="margin-top: 8px;">风险：${item.risk}</p>
+          <div class="actions"><a class="action" href="runs/2026-06-20-task-008/KNOWLEDGE_PROPOSITIONS.md">${iconLink}命题表</a></div>
+        </article>
+      `;
+    }
+
+    function render() {
+      const visibleCards = knowledgeCards.filter(matches);
+      const visibleSources = sources.filter(matches);
+      const visibleProps = propositions.filter(matches);
+
+      document.getElementById('knowledgeGrid').innerHTML = visibleCards.map(cardTemplate).join('');
+      document.querySelector('#sourceTable tbody').innerHTML = visibleSources.map(item => `
+        <tr data-type="${item.type}" data-search="${[item.id, item.title, item.author, item.topic].join(' ')}">
+          <td><strong>${item.id}</strong></td>
+          <td>${item.title}</td>
+          <td>${item.author}</td>
+          <td>${item.topic}</td>
+          <td><a href="${item.href}">打开</a></td>
+        </tr>
+      `).join('');
+      document.getElementById('propositionGrid').innerHTML = visibleProps.map(propositionTemplate).join('');
+
+      const hasAny = visibleCards.length + visibleSources.length + visibleProps.length > 0;
+      document.getElementById('emptyState').style.display = hasAny ? 'none' : 'block';
+    }
+
+    document.querySelectorAll('.tab').forEach(button => {
+      button.addEventListener('click', () => {
+        currentFilter = button.dataset.filter;
+        document.querySelectorAll('.tab').forEach(tab => tab.setAttribute('aria-pressed', String(tab === button)));
+        render();
+      });
+    });
+
+    document.getElementById('searchInput').addEventListener('input', event => {
+      currentQuery = event.target.value.trim();
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
